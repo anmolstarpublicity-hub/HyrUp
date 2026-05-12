@@ -1,0 +1,43 @@
+.nt-card--simple .nt-body { padding: 10px 12px; }
+.nt-card--simple .nt-row-top { display: flex; align-items: center; gap: 8px; margin-bottom: 0; }
+.nt-card--simple .nt-title { font-size: 12px; font-weight: 500; color: #374151; }
+
+.nt-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.nt-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.18s ease;
+}
+
+.nt-action-view {
+  background: rgba(0,128,128,0.1);
+  color: #008080;
+  border: 1px solid rgba(0,128,128,0.25);
+}
+.nt-action-view:hover {
+  background: #008080;
+  color: #ffffff;
+}
+
+.nt-action-read {
+  background: rgba(16,185,129,0.1);
+  color: #059669;
+  border: 1px solid rgba(16,185,129,0.25);
+}
+.nt-action-read:hover {
+  background: #10B981;
+  color: #ffffff;
+}

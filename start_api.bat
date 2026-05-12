@@ -1,0 +1,5 @@
+@echo off
+set HYRUP_DATA_DIR=C:\HyrUp_Data
+set HYRUP_API_KEY=e616fffda5c50197244bec1d41d5387cb03bdd6a2ec27fd5a3ce428dfd518f05
+set HYRUP_ENC_KEY=fyNkWucPUOi4QPOy92wHzJPjggATsCIE_XMaW5Rulkg=
+python C:\HyrUp\central_api.py

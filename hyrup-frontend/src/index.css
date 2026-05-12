@@ -1,0 +1,181 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg-main:          #f0fafa;
+  --border:           rgba(0,128,128,0.15);
+  --shadow:           rgba(0,128,128,0.10);
+  --text:             #1D1D2E;
+  --text-muted:       #6b7280;
+  --primary:          #008080;
+  --primary-light:    #66b2b2;
+  --primary-lighter:  #b2d8d8;
+  --primary-dark:     #006666;
+  --primary-darker:   #004c4c;
+  --card-bg:          #ffffff;
+  --card-border:      rgba(0,128,128,0.12);
+  --card-shadow:      rgba(0,128,128,0.08);
+  --page-bg:          #66b2b2;
+  --sb-divider:       rgba(0,128,128,0.15);
+  --table-head-bg:    #e6f5f5;
+  --table-head-color: #006666;
+  --table-text:       #1D1D2E;
+  --table-border:     rgba(0,128,128,0.10);
+  --no-data-bg:       #f0fafa;
+  --input-bg:         rgba(0,128,128,0.06);
+  --input-border:     rgba(0,128,128,0.2);
+  --input-color:      #008080;
+}
+
+html.dark {
+  --bg-main:          #333333;
+  --border:           #555555;
+  --shadow:           rgba(0,0,0,0.5);
+  --text:             #999999;
+  --text-muted:       #777777;
+  --primary:          #999999;
+  --primary-light:    #999999;
+  --primary-dark:     #777777;
+  --card-bg:          #333333;
+  --card-border:      #555555;
+  --card-shadow:      rgba(0,0,0,0.4);
+  --page-bg:          #111111;
+  --sb-divider:       #555555;
+  --table-head-bg:    #333333;
+  --table-head-color: #999999;
+  --table-text:       #999999;
+  --table-border:     #555555;
+  --no-data-bg:       #333333;
+  --input-bg:         #333333;
+  --input-border:     #555555;
+  --input-color:      #999999;
+}
+
+html, body, #root, .app-layout {
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  min-height: 100vh;
+  color: var(--text);
+  background: var(--page-bg) fixed;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* ── Global box shadow ── */
+.main-content,
+.ec-card,
+.saas-btn,
+.dash-header,
+.metric-card,
+.chart-box,
+.log-box,
+.app-list-card,
+.kanban-col,
+.kanban-card,
+.lv-card,
+.screenshot-card,
+.saas-select-menu,
+.saas-select-trigger,
+.dp-calendar {
+  box-shadow: 0 2px 8px rgba(0,128,128,0.07), 0 1px 3px rgba(0,0,0,0.04) !important;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.ec-card:hover,
+.saas-btn:hover,
+.lv-card:hover,
+.screenshot-card:hover,
+.metric-card:hover,
+.kanban-card:hover {
+  box-shadow: 0 6px 20px rgba(0,128,128,0.13), 0 2px 6px rgba(0,0,0,0.06) !important;
+}
+
+/* ── Layout ── */
+.main-content {
+  flex: 1;
+  padding: 0.5rem 2.2rem 1.8rem 2.2rem;
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid rgba(0,128,128,0.12);
+  box-shadow: 0 4px 24px rgba(0,128,128,0.08);
+  margin: 0.8rem 0.8rem 0.8rem 316px;
+  overflow-y: auto;
+  min-height: calc(100vh - 1.6rem);
+  will-change: margin-left;
+  transition: margin-left 0.4s cubic-bezier(0.4,0,0.2,1);
+}
+html.dark .main-content {
+  background: #222222;
+  border-color: #555555;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+.main-expanded { margin-left: 88px; }
+
+/* ── Keyframes ── */
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeSlideLeft {
+  from { opacity: 0; transform: translateX(-28px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.93); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%       { transform: scale(1.5); opacity: 0.5; }
+}
+
+/* ── Dark theme global boxes ── */
+html.dark .dash-header { background: #222222; border-color: #555555; border-left-color: #999999; }
+html.dark .dash-title { color: #999999; }
+html.dark .dash-sub { color: #777777; }
+html.dark .dash-title-icon { background: #555555; }
+html.dark .log-box { background: #222222; border-color: #555555; }
+html.dark .log-box-header { background: #333333; border-bottom-color: #555555; }
+html.dark .log-table th { background: #333333; color: #999999; border-bottom-color: #555555; }
+html.dark .log-table td { color: #999999; border-bottom-color: #555555; }
+html.dark .log-table tr:hover td { background: #333333; }
+html.dark .log-time-pill { background: #333333; color: #999999; border-color: #555555; }
+html.dark .log-title { color: #999999; }
+html.dark .log-count { color: #999999; background: #333333; border-color: #555555; }
+html.dark .chart-box { background: #222222; border-color: #555555; }
+html.dark .chart-title { color: #999999; }
+html.dark .app-list-card { background: #222222; border-color: #555555; }
+html.dark .app-list-header { background: #333333; border-bottom-color: #555555; }
+html.dark .app-list-title { color: #999999; }
+html.dark .app-item-name { color: #777777; }
+html.dark .kanban-col { background: #222222; border-color: #555555; }
+html.dark .kanban-col-header { background: #333333; border-bottom-color: #555555; }
+html.dark .kanban-col-name { color: #999999; }
+html.dark .kanban-card { background: #333333; border-color: #555555; }
+html.dark .kanban-card:hover { background: #444444; border-color: #777777; }
+html.dark .kanban-card-app { color: #777777; }
+html.dark .tab-bar { background: #333333; border-color: #555555; }
+html.dark .tab-btn { color: #777777; }
+html.dark .tab-active { background: #555555 !important; color: #999999 !important; }
+html.dark .saas-btn { background: #222222; border-color: #555555; }
+html.dark .saas-count { color: #999999; }
+html.dark .saas-label { color: #777777; }
+html.dark .lv-card { background: #222222; border-color: #555555; }
+html.dark .lv-card-header { background: #333333; border-bottom-color: #555555; }
+html.dark .lv-emp-name { color: #999999; }
+html.dark .screenshot-card { background: #222222; border-color: #555555; }
+html.dark .screenshot-meta { background: #333333; border-top-color: #555555; }
+html.dark .screenshot-name { color: #777777; }
+html.dark .saas-select-trigger { background: #222222; border-color: #555555; color: #999999; }
+html.dark .saas-select-trigger:hover, html.dark .saas-select-trigger.open { border-color: #999999; box-shadow: 0 0 0 3px rgba(153,153,153,0.1); }
+html.dark .saas-select-menu { background: #222222; border-color: #555555; }
+html.dark .saas-select-option { color: #777777; }
+html.dark .saas-select-option:hover { background: #333333; color: #999999; }
+html.dark .saas-select-option.active { background: #333333; color: #999999; font-weight: 700; }
+html.dark .no-data { background: #222222; border-color: #555555; color: #777777; }
+html.dark .filter-label { backdrop-filter: none; }
+html.dark .fl-online { background: #333333; border-color: #555555; color: #999999; border-left-color: #999999; }
+html.dark .fl-offline { background: #333333; border-color: #555555; color: #777777; border-left-color: #777777; }

@@ -1,0 +1,6 @@
+Screenshots/
+activity.log
+ngrok.exe
+__pycache__/
+*.pyc
+.env
