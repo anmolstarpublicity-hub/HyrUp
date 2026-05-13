@@ -1,5 +1,5 @@
 {
   "version": 2,
-  "buildCommand": "cd hyrup-frontend && npm run build",
-  "outputDirectory": "hyrup-frontend/dist"
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist"
 }
