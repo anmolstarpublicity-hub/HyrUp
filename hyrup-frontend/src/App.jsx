@@ -128,10 +128,14 @@ function Toast({ toasts, onDismiss, onView, onMarkRead }) {
   );
 }
 
-const apiFetch = (url, opts = {}) => fetch(url, {
-  ...opts,
-  headers: { ...(opts.headers || {}) },
-});
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || window.location.origin;
+const apiFetch = (url, opts = {}) => {
+  const fullUrl = url.startsWith('http') ? url : `${BACKEND_URL}${url}`;
+  return fetch(fullUrl, {
+    ...opts,
+    headers: { ...(opts.headers || {}) },
+  });
+};
 
 const DISTRACTION_SITES = ['youtube', 'instagram', 'facebook', 'whatsapp', 'twitter', 'x.com', 'tiktok', 'snapchat', 'reddit', 'netflix'];
 const isDistraction = (name) => DISTRACTION_SITES.some(s => String(name).toLowerCase().includes(s));
