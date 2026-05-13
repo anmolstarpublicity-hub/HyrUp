@@ -3,9 +3,9 @@ import '../shared.css';
 import './Screenshots.css';
 
 const API_KEY = import.meta.env.VITE_API_KEY || '';
-const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:5001';
-const apiFetch = (url, opts = {}) => fetch(url, { ...opts, headers: { 'X-API-Key': API_KEY, ...(opts.headers || {}) } });
-const imgSrc = (emp, file) => `/api/screenshots/${encodeURIComponent(emp.replace(/ /g, '_'))}/${encodeURIComponent(file)}?api_key=${API_KEY}`;
+const API_URL = import.meta.env.VITE_BACKEND_URL || window.location.origin;
+const apiFetch = (url, opts = {}) => fetch(`${API_URL}${url}`, { ...opts, headers: { 'X-API-Key': API_KEY, ...(opts.headers || {}) } });
+const imgSrc = (emp, file) => `${API_URL}/api/screenshots/${encodeURIComponent(emp.replace(/ /g, '_'))}/${encodeURIComponent(file)}?api_key=${API_KEY}`;
 
 function parseFileDate(file) {
   const parts = file.replace('.png', '').split('_');
@@ -93,7 +93,7 @@ export default function Screenshots({ onBack, dateRange, data, onRefresh }) {
     if ((shotStatuses[emp] || 'idle') === 'loading') return;
     setShotStatuses(s => ({ ...s, [emp]: 'loading' }));
     try {
-      const res = await fetch(`/api/screenshot/trigger/${encodeURIComponent(emp.replace(/ /g, '_'))}`, { method: 'POST', headers: { 'X-API-Key': API_KEY } });
+      const res = await fetch(`${API_URL}/api/screenshot/trigger/${encodeURIComponent(emp.replace(/ /g, '_'))}`, { method: 'POST', headers: { 'X-API-Key': API_KEY } });
       const status = res.ok ? 'success' : 'error';
       setShotStatuses(s => ({ ...s, [emp]: status }));
       setTimeout(() => setShotStatuses(s => ({ ...s, [emp]: 'idle' })), 3000);
@@ -166,7 +166,7 @@ export default function Screenshots({ onBack, dateRange, data, onRefresh }) {
     for (let i = 0; i < pairs.length; i++) {
       const { emp, file } = pairs[i];
       try {
-        const res = await fetch(`/api/screenshots/${encodeURIComponent(emp.replace(/ /g,'_'))}/${encodeURIComponent(file)}?api_key=${API_KEY}`);
+        const res = await fetch(`${API_URL}/api/screenshots/${encodeURIComponent(emp.replace(/ /g,'_'))}/${encodeURIComponent(file)}?api_key=${API_KEY}`);
         const blob = await res.blob();
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
