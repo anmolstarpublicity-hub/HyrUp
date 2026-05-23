@@ -13,12 +13,15 @@ function getSocket() {
     if (_socket) { _socket.removeAllListeners(); _socket.disconnect(); }
     _socket = io(API_URL, {
       path: '/socket.io',
-      transports: ['polling', 'websocket'],
+      transports: ['polling'],
+      upgrade: false,
       reconnection: true,
       reconnectionDelay: 1000,
       reconnectionAttempts: Infinity,
       timeout: 10000,
     });
+    _socket.on('connect_error', (err) => console.error('LiveStream socket connect_error:', err));
+    _socket.on('connect_timeout', (err) => console.error('LiveStream socket connect_timeout:', err));
   }
   return _socket;
 }
