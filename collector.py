@@ -73,16 +73,16 @@ IDLE_THRESHOLD_SEC      = 120
 SCREENSHOT_INTERVAL_SEC = 1 * 60 * 60  # every 1 hour
 
 def _get_central_url():
-    """Read ngrok URL from Supabase config table. Falls back to local."""
+    """Read ngrok URL from Supabase config table. Falls back to Railway."""
     if not _supabase:
-        return os.environ.get('HYRUP_API_URL', 'http://127.0.0.1:5001').rstrip('/')
+        return os.environ.get('HYRUP_API_URL', 'https://hyrup-production.up.railway.app').rstrip('/')
     try:
         res = _supabase.table('config').select('value').eq('key', 'ngrok_url').execute()
         url = res.data[0]['value'] if res.data else ''
-        return url.rstrip('/') if url else os.environ.get('HYRUP_API_URL', 'http://127.0.0.1:5001').rstrip('/')
+        return url.rstrip('/') if url else os.environ.get('HYRUP_API_URL', 'https://hyrup-production.up.railway.app').rstrip('/')
     except Exception as e:
         _err(f'_get_central_url error: {e}')
-        return os.environ.get('HYRUP_API_URL', 'http://127.0.0.1:5001').rstrip('/')
+        return os.environ.get('HYRUP_API_URL', 'https://hyrup-production.up.railway.app').rstrip('/')
 
 CENTRAL_API_URL = _get_central_url()
 _err(f"Central API URL: {CENTRAL_API_URL}")
