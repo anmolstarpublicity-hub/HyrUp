@@ -6,6 +6,7 @@ import './LiveView.css';
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_URL || window.location.origin;
 const BACKEND_CONFIGURED = !!(import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_URL);
 const API_KEY = import.meta.env.VITE_API_KEY || '';
+const API_KEY_CONFIGURED = !!API_KEY;
 const apiFetch = (url, opts = {}) => fetch(`${BACKEND_URL}${url}`, {
   ...opts,
   headers: { 'X-API-Key': API_KEY, ...(opts.headers || {}) }
@@ -95,11 +96,23 @@ export default function LiveView({ onBack }) {
     };
   }, []);
 
-  const backendWarning = !BACKEND_CONFIGURED ? (
-    <div className="lv-warn-bar" style={{ background: '#FEF3C7', color: '#92400E', marginTop: '12px' }}>
-      Frontend backend URL is not configured. Set <strong>VITE_BACKEND_URL</strong> or <strong>VITE_API_URL</strong> in Vercel and redeploy.
-    </div>
-  ) : null;
+  const backendWarning = (
+    <>
+      {!BACKEND_CONFIGURED && (
+        <div className="lv-warn-bar" style={{ background: '#FEF3C7', color: '#92400E', marginTop: '12px' }}>
+          Frontend backend URL is not configured. Set <strong>VITE_BACKEND_URL</strong> or <strong>VITE_API_URL</strong> in Vercel and redeploy.
+        </div>
+      )}
+      {!API_KEY_CONFIGURED && (
+        <div className="lv-warn-bar" style={{ background: '#FECACA', color: '#991B1B', marginTop: '12px' }}>
+          Frontend API key is not configured. Set <strong>VITE_API_KEY</strong> in Vercel and redeploy.
+        </div>
+      )}
+      <div className="lv-info-bar" style={{ background: '#EFF6FF', color: '#1D4ED8' }}>
+        <strong>Debug:</strong> backend={BACKEND_URL} transport=polling
+      </div>
+    </>
+  );
 
   const startLive = (emp) => {
     if (!socketRef.current?.connected) {

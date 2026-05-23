@@ -5,6 +5,7 @@ import './LiveStream.css';
 
 const API_URL = import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_URL || window.location.origin;
 const BACKEND_CONFIGURED = !!(import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_URL);
+const API_KEY_CONFIGURED = !!import.meta.env.VITE_API_KEY;
 
 // Socket connects directly to API URL
 let _socket = null;
@@ -339,7 +340,21 @@ export default function LiveStream({ data, onRefresh }) {
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
         </svg>
-        <span>Streams at ~2.5 fps via WebSocket through ngrok. Collector must be running on the employee PC. Only online employees can be streamed.</span>
+        <span>Streams at ~2.5 fps via polling. Collector must be running on the employee PC. Only online employees can be streamed.</span>
+      </div>
+
+      {!BACKEND_CONFIGURED && (
+        <div className="lv-warn-bar" style={{ background: '#FEF3C7', color: '#92400E', marginTop: '12px' }}>
+          Frontend backend URL is not configured. Set <strong>VITE_BACKEND_URL</strong> or <strong>VITE_API_URL</strong> in Vercel and redeploy.
+        </div>
+      )}
+      {!API_KEY_CONFIGURED && (
+        <div className="lv-warn-bar" style={{ background: '#FECACA', color: '#991B1B', marginTop: '12px' }}>
+          Frontend API key is not configured. Set <strong>VITE_API_KEY</strong> in Vercel and redeploy.
+        </div>
+      )}
+      <div className="lv-info-bar" style={{ background: '#EFF6FF', color: '#1D4ED8' }}>
+        <strong>Debug:</strong> backend={API_URL} transport=polling
       </div>
 
       {!socketConnected && (
