@@ -12,7 +12,8 @@ function getSocket() {
   if (!_socket || _socket.disconnected) {
     if (_socket) { _socket.removeAllListeners(); _socket.disconnect(); }
     _socket = io(API_URL, {
-      transports: ['websocket', 'polling'],
+      path: '/socket.io',
+      transports: ['polling', 'websocket'],
       reconnection: true,
       reconnectionDelay: 1000,
       reconnectionAttempts: Infinity,
@@ -262,8 +263,11 @@ export default function LiveStream({ data, onRefresh }) {
     const sio = getSocket();
     const onConnect    = () => setSocketConnected(true);
     const onDisconnect = () => setSocketConnected(false);
-    sio.on('connect',    onConnect);
-    sio.on('disconnect', onDisconnect);
+    const onError     = (err) => { console.error('LiveStream socket error:', err); setSocketConnected(false); };
+    sio.on('connect',        onConnect);
+    sio.on('disconnect',     onDisconnect);
+    sio.on('connect_error',  onError);
+    sio.on('connect_timeout', onError);
     if (sio.connected) setSocketConnected(true);
     return () => {
       sio.off('connect',    onConnect);

@@ -24,12 +24,19 @@ export default function LiveView({ onBack }) {
   useEffect(() => {
     const initSocket = () => {
       const socket = io(BACKEND_URL, {
-        transports: ['websocket', 'polling'],
+        path: '/socket.io',
+        transports: ['polling', 'websocket'],
         auth: { 'X-API-Key': API_KEY }
       });
 
       socket.on('connect', () => {
         console.log('Connected to live stream server', BACKEND_URL);
+      });
+      socket.on('connect_error', (err) => {
+        console.error('LiveView socket connect_error:', err);
+      });
+      socket.on('connect_timeout', (err) => {
+        console.error('LiveView socket connect_timeout:', err);
       });
 
       socket.on('frame', (data) => {
