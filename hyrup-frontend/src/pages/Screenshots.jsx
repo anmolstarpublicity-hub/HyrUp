@@ -3,7 +3,7 @@ import '../shared.css';
 import './Screenshots.css';
 
 const API_KEY = import.meta.env.VITE_API_KEY || '';
-const API_URL = import.meta.env.VITE_BACKEND_URL || window.location.origin;
+const API_URL = import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_URL || window.location.origin;
 const apiFetch = (url, opts = {}) => fetch(`${API_URL}${url}`, { ...opts, headers: { 'X-API-Key': API_KEY, ...(opts.headers || {}) } });
 const imgSrc = (emp, file) => `${API_URL}/api/screenshots/${encodeURIComponent(emp.replace(/ /g, '_'))}/${encodeURIComponent(file)}?api_key=${API_KEY}`;
 

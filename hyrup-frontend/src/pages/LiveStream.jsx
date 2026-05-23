@@ -3,7 +3,7 @@ import { io } from 'https://cdn.socket.io/4.7.5/socket.io.esm.min.js';
 import '../shared.css';
 import './LiveStream.css';
 
-const API_URL = import.meta.env.VITE_BACKEND_URL || window.location.origin;
+const API_URL = import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_URL || window.location.origin;
 
 // Socket connects directly to API URL
 let _socket = null;

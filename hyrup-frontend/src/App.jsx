@@ -128,7 +128,7 @@ function Toast({ toasts, onDismiss, onView, onMarkRead }) {
   );
 }
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || window.location.origin;
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_URL || window.location.origin;
 const API_KEY = import.meta.env.VITE_API_KEY || '';
 const apiFetch = (url, opts = {}) => {
   const fullUrl = url.startsWith('http') ? url : `${BACKEND_URL}${url}`;

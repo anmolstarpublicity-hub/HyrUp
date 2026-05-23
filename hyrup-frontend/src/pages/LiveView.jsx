@@ -3,8 +3,9 @@ import { io } from 'https://cdn.socket.io/4.7.5/socket.io.esm.min.js';
 import '../shared.css';
 import './LiveView.css';
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_URL || window.location.origin;
 const API_KEY = import.meta.env.VITE_API_KEY || '';
-const apiFetch = (url, opts = {}) => fetch(url, {
+const apiFetch = (url, opts = {}) => fetch(`${BACKEND_URL}${url}`, {
   ...opts,
   headers: { 'X-API-Key': API_KEY, ...(opts.headers || {}) }
 });
