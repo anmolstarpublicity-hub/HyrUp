@@ -129,7 +129,9 @@ function Toast({ toasts, onDismiss, onView, onMarkRead }) {
 }
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_URL || window.location.origin;
+const BACKEND_CONFIGURED = !!(import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_URL);
 const API_KEY = import.meta.env.VITE_API_KEY || '';
+const API_KEY_CONFIGURED = !!API_KEY;
 const apiFetch = (url, opts = {}) => {
   const fullUrl = url.startsWith('http') ? url : `${BACKEND_URL}${url}`;
   return fetch(fullUrl, {
@@ -422,6 +424,13 @@ export default function App() {
 
   return (
     <div className="app-layout">
+      {(!BACKEND_CONFIGURED || !API_KEY_CONFIGURED) && (
+        <div className="app-warning-bar" style={{ padding: '12px', background: '#FEE2E2', color: '#991B1B', textAlign: 'center' }}>
+          {!BACKEND_CONFIGURED && <span>VITE_BACKEND_URL or VITE_API_URL is not configured. </span>}
+          {!API_KEY_CONFIGURED && <span>VITE_API_KEY is not configured. </span>}
+          <strong>Set the missing env values in Vercel and redeploy.</strong>
+        </div>
+      )}
       <Sidebar
         active={nav}
         onNav={setNav}

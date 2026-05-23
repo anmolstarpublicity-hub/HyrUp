@@ -6,11 +6,13 @@ export default function Login({ onLogin }) {
   const [password, setPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
 
+  const validUsername = import.meta.env.VITE_APP_USERNAME || 'admin';
+  const validPassword = import.meta.env.VITE_APP_PASSWORD || 'password123';
+  const missingLoginEnv = !import.meta.env.VITE_APP_USERNAME || !import.meta.env.VITE_APP_PASSWORD;
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    const validUsername = import.meta.env.VITE_APP_USERNAME || 'admin';
-    const validPassword = import.meta.env.VITE_APP_PASSWORD || 'password123';
-    if (!import.meta.env.VITE_APP_USERNAME || !import.meta.env.VITE_APP_PASSWORD) {
+    if (missingLoginEnv) {
       console.warn('VITE_APP_USERNAME or VITE_APP_PASSWORD not set in environment; falling back to defaults.');
     }
     if (username === validUsername && password === validPassword) {
@@ -27,6 +29,11 @@ export default function Login({ onLogin }) {
           <img src="/logo.png" alt="HyrUp" className="login-logo-img" />
         </div>
         <div className="heading">Login</div>
+        {missingLoginEnv && (
+          <div className="login-warning" style={{ background: '#FEF3C7', color: '#991B1B', padding: '10px', borderRadius: '6px', marginBottom: '16px' }}>
+            VITE_APP_USERNAME or VITE_APP_PASSWORD is not set in Vercel. Default admin credentials are active.
+          </div>
+        )}
         <form className="form" onSubmit={handleSubmit}>
           <input
             required
