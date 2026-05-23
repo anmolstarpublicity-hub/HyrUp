@@ -4,6 +4,7 @@ import '../shared.css';
 import './LiveView.css';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_URL || window.location.origin;
+const BACKEND_CONFIGURED = !!(import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_URL);
 const API_KEY = import.meta.env.VITE_API_KEY || '';
 const apiFetch = (url, opts = {}) => fetch(`${BACKEND_URL}${url}`, {
   ...opts,
@@ -81,6 +82,12 @@ export default function LiveView({ onBack }) {
     };
   }, []);
 
+  const backendWarning = !BACKEND_CONFIGURED ? (
+    <div className="lv-warn-bar" style={{ background: '#FEF3C7', color: '#92400E', marginTop: '12px' }}>
+      Frontend backend URL is not configured. Set <strong>VITE_BACKEND_URL</strong> or <strong>VITE_API_URL</strong> in Vercel and redeploy.
+    </div>
+  ) : null;
+
   const startLive = (emp) => {
     if (!socketRef.current?.connected) {
       console.warn('Socket not connected');
@@ -120,6 +127,8 @@ export default function LiveView({ onBack }) {
         <div className="dash-header-left">
           <div className="dash-title-row">
             <div className="dash-title-icon">
+
+        {backendWarning}
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6366F1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
               </svg>

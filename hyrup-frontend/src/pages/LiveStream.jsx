@@ -4,6 +4,7 @@ import '../shared.css';
 import './LiveStream.css';
 
 const API_URL = import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_URL || window.location.origin;
+const BACKEND_CONFIGURED = !!(import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_URL);
 
 // Socket connects directly to API URL
 let _socket = null;
@@ -321,6 +322,12 @@ export default function LiveStream({ data, onRefresh }) {
       </div>
 
       {/* Info bar */}
+
+            {!BACKEND_CONFIGURED && (
+              <div className="lv-warn-bar" style={{ background: '#FEF3C7', color: '#92400E', marginTop: '12px' }}>
+                Frontend backend URL is not configured. Set <strong>VITE_BACKEND_URL</strong> or <strong>VITE_API_URL</strong> in Vercel and redeploy.
+              </div>
+            )}
       <div className="lv-info-bar">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
