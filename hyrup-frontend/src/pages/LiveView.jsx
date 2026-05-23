@@ -23,10 +23,8 @@ export default function LiveView({ onBack }) {
   useEffect(() => {
     const initSocket = () => {
       const socket = io(BACKEND_URL, {
-        transports: ['websocket', 'polling'],
-        reconnection: true,
-        reconnectionDelay: 1000,
-        reconnectionAttempts: Infinity,
+        transports: ['websocket'],
+        upgrade: false,
         auth: { 'X-API-Key': API_KEY }
       });
 
