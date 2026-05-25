@@ -208,3 +208,52 @@ html.dark .lv-card-footer { background: rgba(45,42,80,0.5); border-top-color: rg
 .lv-stat-val   { font-size: 12px; font-weight: 700; color: #6366F1; }
 html.dark .lv-stat-val { color: #a78bfa; }
 .lv-stat-divider { width: 1px; height: 28px; background: rgba(99,102,241,0.1); }
+
+/* Fullscreen modal */
+.lv-fullscreen-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.85);
+  z-index: 9999;
+}
+.lv-fullscreen-content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  box-sizing: border-box;
+}
+.lv-fullscreen-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.lv-fullscreen-img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  box-shadow: 0 6px 30px rgba(0,0,0,0.6);
+  border-radius: 6px;
+  background: #000;
+}
+
+/* When element is fullscreen, ensure it fills viewport */
+::backdrop, :fullscreen, :-webkit-full-screen, :-ms-fullscreen {
+  background: transparent;
+}
+:fullscreen .lv-fullscreen-img, :-webkit-full-screen .lv-fullscreen-img {
+  width: 100vw;
+  height: 100vh;
+  max-width: none;
+  max-height: none;
+  object-fit: contain;
+}

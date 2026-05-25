@@ -1,6 +1,27 @@
-Screenshots/
-activity.log
-ngrok.exe
+# Secrets — never commit
+.env
+hyrup-frontend/.env
+
+# Python
 __pycache__/
 *.pyc
-.env
+*.pyo
+
+# Logs & local data
+Screenshots/
+activity.log
+*.log
+
+# Build output
+dist/
+build/
+hyrup-frontend/dist/
+hyrup-frontend/node_modules/
+
+# Binaries
+*.exe
+ngrok.exe
+
+# OS
+.DS_Store
+Thumbs.db

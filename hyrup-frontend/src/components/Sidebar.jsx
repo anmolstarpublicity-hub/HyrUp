@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import './Sidebar.css';
 import DatePicker from './DatePicker';
 
@@ -32,29 +32,29 @@ const NAV_ITEMS = [
 
 export default function Sidebar({ active, onNav, dateRange, onDateChange, onOpenChange, pendingCount = 0 }) {
   const [collapsed, setCollapsed] = useState(false);
-  const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains('dark'));
-  const [typedText, setTypedText] = useState('');
-  const timerRef = useRef(null);
-  const fullText = 'HyrUp';
-
-  useEffect(() => {
-    let i = 0;
-    setTypedText('');
-    const type = () => {
-      if (i <= fullText.length) {
-        setTypedText(fullText.slice(0, i));
-        i++;
-        timerRef.current = setTimeout(type, 120);
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 900);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [isDark, setIsDark] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const savedTheme = localStorage.getItem('hyrup-theme');
+      if (savedTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+        return true;
       }
-    };
-    timerRef.current = setTimeout(type, 500);
-    return () => clearTimeout(timerRef.current);
-  }, []);
+    }
+    return document.documentElement.classList.contains('dark');
+  });
 
   const toggle = () => {
-    const next = !collapsed;
-    setCollapsed(next);
-    onOpenChange?.(!next);
+    if (isMobile) {
+      const next = !mobileOpen;
+      setMobileOpen(next);
+      onOpenChange?.(next);
+    } else {
+      const next = !collapsed;
+      setCollapsed(next);
+      onOpenChange?.(!next);
+    }
   };
 
   const toggleTheme = () => {
@@ -64,14 +64,27 @@ export default function Sidebar({ active, onNav, dateRange, onDateChange, onOpen
   };
 
   useEffect(() => {
-    const saved = localStorage.getItem('hyrup-theme');
-    if (saved === 'dark') { document.documentElement.classList.add('dark'); setIsDark(true); }
+    const h = () => {
+      const mobile = window.innerWidth <= 900;
+      setIsMobile(mobile);
+      if (!mobile) setMobileOpen(false);
+    };
+    window.addEventListener('resize', h);
+    return () => window.removeEventListener('resize', h);
   }, []);
 
-  useEffect(() => () => { if (timerRef.current) clearTimeout(timerRef.current); }, []);
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    if (mobileOpen) {
+      document.body.classList.add('sb-menu-open');
+    } else {
+      document.body.classList.remove('sb-menu-open');
+    }
+    return () => document.body.classList.remove('sb-menu-open');
+  }, [mobileOpen]);
 
   return (
-    <aside className={`sidebar${collapsed ? ' sb-collapsed' : ''}`}>
+    <aside className={`sidebar${collapsed ? ' sb-collapsed' : ''}${isMobile ? ' mobile' : ''}${mobileOpen ? ' mobile-open' : ''}`}>
       <div className="sb-inner">
 
         {/* Header */}
@@ -79,17 +92,45 @@ export default function Sidebar({ active, onNav, dateRange, onDateChange, onOpen
           <div className="sb-logo">
             <img src="/logo.png" alt="logo" className="sb-logo-img" />
           </div>
-          <button className="sb-hamburger" onClick={toggle}>
+          {isMobile && (
+            <div className="sb-actions">
+              <button
+                className={`sb-reminder-btn mobile-action${pendingCount > 0 ? ' sb-has-unread' : ''}`}
+                title="Alerts"
+                onClick={() => {
+                  onNav('Reminders');
+                  setMobileOpen(false);
+                }}
+              >
+                <span className="sb-reminder-ring" />
+                <svg className="sb-bell-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                  <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                </svg>
+                <span className="sb-reminder-label">Alerts</span>
+                {pendingCount > 0 && <span className="sb-reminder-dot">{pendingCount > 9 ? '9+' : pendingCount}</span>}
+              </button>
+              <button className="sb-theme-toggle" onClick={toggleTheme} aria-label={isDark ? 'Light mode' : 'Dark mode'}>
+                {isDark ? '🌙' : '☀️'}
+              </button>
+            </div>
+          )}
+          <button className="sb-hamburger" onClick={toggle} aria-expanded={mobileOpen} aria-label={mobileOpen ? 'Close menu' : 'Open menu'}>
             <span className="hbar" />
             <span className="hbar" />
             <span className="hbar" />
           </button>
         </div>
 
+        {/* Backdrop for mobile drawer */}
+        {isMobile && mobileOpen && (
+          <div className="sb-backdrop" onClick={() => setMobileOpen(false)} />
+        )}
+
         {/* Scrollable middle */}
         <div className="sb-scroll">
           {/* Nav */}
-          <nav className="sb-nav">
+          <nav className="sb-nav" onClick={() => { if (isMobile) { setMobileOpen(false); } }}>
             {NAV_ITEMS.map(item => (
               <button
                 key={item.key}

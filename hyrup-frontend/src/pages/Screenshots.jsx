@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import '../shared.css';
 import './Screenshots.css';
 
@@ -425,7 +426,7 @@ export default function Screenshots({ onBack, dateRange, data, onRefresh }) {
         )
       )}
 
-      {lightbox && (
+      {lightbox && createPortal(
         <div className="lb-overlay" onClick={() => setLightbox(null)}>
           <div ref={lbContentRef} className="lb-content" onClick={e => e.stopPropagation()}>
             <div className="lb-toolbar">
@@ -440,7 +441,7 @@ export default function Screenshots({ onBack, dateRange, data, onRefresh }) {
             </div>
           </div>
         </div>
-      )}
+      , document.body)}
     </div>
   );
 }

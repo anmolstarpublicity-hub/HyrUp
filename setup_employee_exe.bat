@@ -24,11 +24,16 @@ if not exist "C:\HyrUp" mkdir "C:\HyrUp"
 copy /Y "%~dp0HyrUpCollector.exe" "C:\HyrUp\HyrUpCollector.exe" >nul
 echo       Done.
 
-echo [2/3] Setting Employee Name...
+echo [2/4] Setting Employee Name...
 setx HYRUP_EMPLOYEE_NAME "%EMP_NAME%" /M >nul 2>&1
 echo       Done.
 
-echo [3/3] Registering silent auto-start on login...
+echo [3/4] Setting Backend API URL...
+set "API_URL=https://hyrup-production.up.railway.app"
+setx HYRUP_API_URL "%API_URL%" /M >nul 2>&1
+echo       Done.
+
+echo [4/4] Registering silent auto-start on login...
 (
 echo Set oShell = CreateObject^("WScript.Shell"^)
 echo oShell.Environment^("Process"^)^("HYRUP_EMPLOYEE_NAME"^) = "%EMP_NAME%"

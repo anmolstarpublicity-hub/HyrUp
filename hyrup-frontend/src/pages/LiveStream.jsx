@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { io } from 'https://cdn.socket.io/4.7.5/socket.io.esm.min.js';
 import '../shared.css';
 import './LiveStream.css';
@@ -39,6 +40,7 @@ function LiveCard({ emp, isOnline }) {
   const statusRef = useRef('idle');
 
   const drawFrame = useCallback((b64) => {
+    try { console.debug('LiveStream.drawFrame', empKey, 'frame_len', b64?.length || 0); } catch(e) {}
     const canvas = canvasRef.current;
     if (!canvas) return;
     const img = new Image();
@@ -66,12 +68,21 @@ function LiveCard({ emp, isOnline }) {
 
     const onFrame = (data) => {
       if (data.employee !== empKey) return;
+      try { console.debug('LiveStream.onFrame event', empKey, 'incoming_len', data.frame?.length || 0); } catch(e) {}
       drawFrame(data.frame);
+      // keep modal frame updated if open
+      setModalFrame(data.frame);
     };
 
     sio.on('frame', onFrame);
     return () => { sio.off('frame', onFrame); };
   }, [empKey, drawFrame]);
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalFrame, setModalFrame] = useState(null);
+  const modalImgRef = useRef(null);
+  const modalFullscreenReqRef = useRef(false);
+  const modalContainerRef = useRef(null);
 
   const startStream = useCallback(() => {
     if (!isOnline || streamingRef.current) return;
@@ -81,6 +92,7 @@ function LiveCard({ emp, isOnline }) {
     setFrameCount(0);
     fpsRef.current = { count: 0, last: Date.now() };
     const sio = getSocket();
+    try { console.debug('LiveStream.startStream emit start_watch', empKey); } catch(e) {}
     sio.emit('start_watch', { employee: empKey });
     // If no frame in 15s, show error
     const timeout = setTimeout(() => {
@@ -94,6 +106,23 @@ function LiveCard({ emp, isOnline }) {
     };
     sio.once('frame', onFrame);
   }, [isOnline, empKey]);
+
+  useEffect(() => {
+    try { console.debug('LiveCard modalOpen', empKey, modalOpen); } catch(e) {}
+  }, [modalOpen, empKey]);
+
+  const toggleFullscreen = useCallback(() => {
+    // Toggle fullscreen on the canvas (live small preview) or modal image if available
+    const elem = modalImgRef.current || canvasRef.current;
+    if (!elem) return;
+    const request = elem.requestFullscreen || elem.webkitRequestFullscreen || elem.mozRequestFullScreen || elem.msRequestFullscreen;
+    const exit = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
+    if (!document.fullscreenElement) {
+      request && request.call(elem);
+    } else {
+      exit && exit.call(document);
+    }
+  }, []);
 
   const stopStream = useCallback(() => {
     if (!streamingRef.current) return;
@@ -121,6 +150,20 @@ function LiveCard({ emp, isOnline }) {
   }, [empKey]);
 
   const isStreaming = streamingRef.current;
+
+  // If modal was opened via fullscreen button request, request fullscreen once modal image is available
+  useEffect(() => {
+    if (!modalOpen) {
+      modalFullscreenReqRef.current = false;
+      return;
+    }
+    if (modalFullscreenReqRef.current && modalFrame && (modalContainerRef.current || modalImgRef.current)) {
+      const el = modalContainerRef.current || modalImgRef.current;
+      const req = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen;
+      try { req && req.call(el); } catch (e) { /* ignore */ }
+      modalFullscreenReqRef.current = false;
+    }
+  }, [modalOpen, modalFrame]);
 
   return (
     <div className={`lv-card ${status === 'live' ? 'lv-card--live' : ''}`}>
@@ -163,6 +206,44 @@ function LiveCard({ emp, isOnline }) {
               Stop
             </button>
           )}
+          <button className="lv-btn lv-btn--fs" onClick={() => { modalFullscreenReqRef.current = true; setModalOpen(true); startStream(); toggleFullscreen(); }} title="Fullscreen">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M8 3H5a2 2 0 0 0-2 2v3"/>
+              <path d="M16 3h3a2 2 0 0 1 2 2v3"/>
+              <path d="M8 21H5a2 2 0 0 1-2-2v-3"/>
+              <path d="M16 21h3a2 2 0 0 0 2-2v-3"/>
+            </svg>
+          </button>
+          {modalOpen && createPortal(
+            <div className="lv-fullscreen-overlay" onClick={() => setModalOpen(false)}>
+              <div className="lv-fullscreen-content" onClick={e => e.stopPropagation()}>
+                <button className="lv-fullscreen-close" onClick={() => setModalOpen(false)}>Close</button>
+                {modalFrame ? (
+                  <div ref={modalContainerRef} className="lv-fullscreen-wrapper">
+                    <img
+                      ref={modalImgRef}
+                      src={`data:image/jpeg;base64,${modalFrame}`}
+                      alt={`${emp} live fullscreen`}
+                      className="lv-fullscreen-img"
+                      onClick={() => {
+                        const container = modalContainerRef.current || modalImgRef.current;
+                        if (!container) return;
+                        if (!document.fullscreenElement) {
+                          const req = container.requestFullscreen || container.webkitRequestFullscreen || container.mozRequestFullScreen || container.msRequestFullscreen;
+                          req && req.call(container);
+                        } else {
+                          const exit = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
+                          exit && exit.call(document);
+                        }
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <div className="lv-loading"><div className="lv-spinner"/>Waiting for frame...</div>
+                )}
+              </div>
+            </div>
+          , document.body)}
         </div>
       </div>
 

@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react';
 import '../shared.css';
 import './DeleteData.css';
 
+const API_URL = import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_URL || window.location.origin;
 const API_KEY = import.meta.env.VITE_API_KEY || '';
-const apiFetch = (url, opts = {}) => fetch(url, {
+const apiFetch = (url, opts = {}) => fetch(`${API_URL}${url}`, {
   ...opts,
   headers: { 'X-API-Key': API_KEY, 'Content-Type': 'application/json', ...(opts.headers || {}) }
 });
@@ -29,7 +30,14 @@ export default function DeleteData({ onBack, dateRange, onNotify }) {
         onNotify?.(msg, 'Medium');
         if (Notification.permission === 'granted')
           new Notification('HyrUp — Auto Cleanup', { body: msg, icon: '/favicon.svg' });
-      } else setResult({ success: false, msg: 'Cleanup failed.' });
+      } else {
+        let detail = '';
+        try {
+          const text = await res.text();
+          try { const j = JSON.parse(text); detail = j.error || j.message || text; } catch { detail = text; }
+        } catch (e) { detail = '' + e; }
+        setResult({ success: false, msg: `Cleanup failed. ${detail || 'Check server logs.'}` });
+      }
     } catch { setResult({ success: false, msg: 'Error connecting to API.' }); }
     setCleaning(false);
   };
@@ -69,10 +77,15 @@ export default function DeleteData({ onBack, dateRange, onNotify }) {
         if (Notification.permission === 'granted')
           new Notification('HyrUp — Data Deleted', { body: msg, icon: '/favicon.svg' });
       } else {
-        setResult({ success: false, msg: 'Delete failed. Please try again.' });
+        let detail = '';
+        try {
+          const text = await res.text();
+          try { const j = JSON.parse(text); detail = j.error || j.message || text; } catch { detail = text; }
+        } catch (e) { detail = '' + e; }
+        setResult({ success: false, msg: `Delete failed. ${detail || 'Please check API key and server logs.'}` });
       }
     } catch (e) {
-      setResult({ success: false, msg: 'Error connecting to API.' });
+      setResult({ success: false, msg: `Error connecting to API. ${e?.message || e}` });
     }
     setLoading(false);
     setConfirm(false);

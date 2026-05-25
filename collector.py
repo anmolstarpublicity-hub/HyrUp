@@ -36,10 +36,17 @@ except Exception as e:
     _HAS_SIO = False
     print(f'[HyrUp] python-socketio not available: {e}')
 
-# ── Supabase Config ───────────────────────────────────────────
-SUPABASE_URL = os.environ.get('SUPABASE_URL', 'https://paqujlxftcnqogwvetra.supabase.co')
-SUPABASE_KEY = os.environ.get('SUPABASE_KEY', '')
+# Load .env for local development — Railway/production sets env vars directly
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
 
+# ── Supabase Config ───────────────────────────────────────────
+SUPABASE_URL  = os.environ.get('SUPABASE_URL', '')
+SUPABASE_KEY  = os.environ.get('SUPABASE_KEY', '')
+HYRUP_API_URL = os.environ.get('HYRUP_API_URL', '').rstrip('/')
 _supabase = None
 if _HAS_SUPABASE:
     try:
@@ -73,7 +80,13 @@ IDLE_THRESHOLD_SEC      = 120
 SCREENSHOT_INTERVAL_SEC = 1 * 60 * 60  # every 1 hour
 
 def _get_central_url():
-    """Read ngrok URL from Supabase config table. Falls back to Railway."""
+    """Read central API URL from env or Supabase config.
+
+    Prefer HYRUP_API_URL if set, otherwise use the ngrok_url value from Supabase.
+    This avoids stale ngrok addresses when the backend is deployed to Railway.
+    """
+    if HYRUP_API_URL:
+        return HYRUP_API_URL
     if not _supabase:
         return os.environ.get('HYRUP_API_URL', 'https://hyrup-production.up.railway.app').rstrip('/')
     try:

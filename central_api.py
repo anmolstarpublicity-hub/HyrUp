@@ -8,15 +8,25 @@ import os, secrets, base64, threading, time, sys, urllib.request, json as _json
 from datetime import datetime, timedelta
 from supabase import create_client
 
+# Load .env for local development — Railway/production sets env vars directly
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('HYRUP_SECRET', 'hyrup-secret-key-2024')
 CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading', logger=False, engineio_logger=False)
 limiter = Limiter(get_remote_address, app=app, default_limits=["200 per minute"], storage_uri="memory://")
 
-SUPABASE_URL = os.environ.get('SUPABASE_URL', 'https://paqujlxftcnqogwvetra.supabase.co')
-SUPABASE_KEY = os.environ.get('SUPABASE_KEY', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhcXVqbHhmdGNucW9nd3ZldHJhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3MTU3MjMsImV4cCI6MjA5MTI5MTcyM30.oJ8wpnfEPwM0BO_VViDEtXc6Scs2b2-H_bi_CsFRAyA')
-_API_KEY = os.environ.get('HYRUP_API_KEY', 'e616fffda5c50197244bec1d41d5387cb03bdd6a2ec27fd5a3ce428dfd518f05')
+SUPABASE_URL = os.environ.get('SUPABASE_URL', '')
+SUPABASE_KEY = os.environ.get('SUPABASE_KEY', '')
+_API_KEY     = os.environ.get('HYRUP_API_KEY', '')
+
+if not SUPABASE_URL or not SUPABASE_KEY:
+    raise RuntimeError('SUPABASE_URL and SUPABASE_KEY must be set in environment or .env file')
 
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
@@ -272,6 +282,51 @@ def activity_one(employee):
     except Exception as e:
         print(f'[HyrUp] activity_one error: {e}')
         return jsonify([])
+
+@app.route('/api/delete/employee/<employee>', methods=['DELETE', 'OPTIONS'])
+def delete_by_employee(employee):
+    if request.method == 'OPTIONS':
+        return '', 204
+    _require_api_key()
+    try:
+        emp_space = employee.replace('_', ' ')
+        db = _get_supabase()
+        db.table('activity_logs').delete().in_('employee_name', [employee, emp_space]).execute()
+        db.table('screenshots').delete().in_('employee_name', [employee, emp_space]).execute()
+        return jsonify({'status': 'ok'})
+    except Exception as e:
+        abort(500, str(e))
+
+@app.route('/api/delete/date/<date>', methods=['DELETE', 'OPTIONS'])
+def delete_by_date(date):
+    if request.method == 'OPTIONS':
+        return '', 204
+    _require_api_key()
+    try:
+        db = _get_supabase()
+        db.table('activity_logs').delete().eq('date', date).execute()
+        db.table('screenshots').delete().like('created_at', f'{date}%').execute()
+        return jsonify({'status': 'ok'})
+    except Exception as e:
+        abort(500, str(e))
+
+@app.route('/api/delete/employee/<employee>/date/<date>', methods=['DELETE', 'OPTIONS'])
+def delete_by_employee_and_date(employee, date):
+    if request.method == 'OPTIONS':
+        return '', 204
+    _require_api_key()
+    try:
+        emp_space = employee.replace('_', ' ')
+        db = _get_supabase()
+        db.table('activity_logs').delete()\
+            .in_('employee_name', [employee, emp_space])\
+            .eq('date', date).execute()
+        db.table('screenshots').delete()\
+            .in_('employee_name', [employee, emp_space])\
+            .like('created_at', f'{date}%').execute()
+        return jsonify({'status': 'ok'})
+    except Exception as e:
+        abort(500, str(e))
 
 @app.route('/api/screenshot/trigger/<employee>', methods=['POST', 'OPTIONS'])
 def trigger_screenshot(employee):

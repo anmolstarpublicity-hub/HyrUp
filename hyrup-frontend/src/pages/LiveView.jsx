@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { io } from 'https://cdn.socket.io/4.7.5/socket.io.esm.min.js';
 import '../shared.css';
 import './LiveView.css';
@@ -211,6 +212,19 @@ export default function LiveView({ onBack }) {
                       </>
                     )}
                   </button>
+                  <button
+                    className="lv-btn lv-btn--fs"
+                    onClick={() => streams[emp] && setLightbox(streams[emp].frame)}
+                    disabled={!streams[emp]}
+                    title="Fullscreen"
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M8 3H5a2 2 0 0 0-2 2v3"/>
+                      <path d="M16 3h3a2 2 0 0 1 2 2v3"/>
+                      <path d="M8 21H5a2 2 0 0 1-2-2v-3"/>
+                      <path d="M16 21h3a2 2 0 0 0 2-2v-3"/>
+                    </svg>
+                  </button>
                   {streams[emp] && (
                     <div className="lv-stream-status">
                       <span className="lv-live-indicator">●</span>
@@ -254,18 +268,24 @@ export default function LiveView({ onBack }) {
         </div>
       )}
 
-      {lightbox && (
+      {lightbox && createPortal(
         <div className="lb-overlay" onClick={() => setLightbox(null)}>
           <div className="lb-content" onClick={e => e.stopPropagation()}>
             <div className="lb-toolbar">
               <button onClick={() => setLightbox(null)}>Close</button>
             </div>
             <div className="lb-image-wrap">
-              <img src={lightbox} className="lb-img" alt="live screen" />
+              {typeof lightbox === 'string' && streams[lightbox] ? (
+                <img src={streams[lightbox].frame} className="lb-img" alt="live screen" />
+              ) : lightbox ? (
+                <img src={lightbox} className="lb-img" alt="live screen" />
+              ) : (
+                <div className="lb-empty">No stream available</div>
+              )}
             </div>
           </div>
         </div>
-      )}
+      , document.body)}
     </div>
   );
 }
