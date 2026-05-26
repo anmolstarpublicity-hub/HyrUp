@@ -21,8 +21,9 @@ if "%EMP_NAME%"=="" (
 )
 
 echo.
-echo [1/3] Setting Employee Name...
+echo [1/3] Setting Employee Name and API URL...
 setx HYRUP_EMPLOYEE_NAME "%EMP_NAME%" /M >nul 2>&1
+setx HYRUP_API_URL "https://hyrup-production.up.railway.app" /M >nul 2>&1
 echo       Done.
 
 echo [2/3] Installing dependencies...
