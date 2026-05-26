@@ -240,19 +240,21 @@ html.dark .lv-stat-val { color: #a78bfa; }
   height: 44px;
   border-radius: 50%;
   background: #ffffff;
-  border: 4px solid #a09898;
-  color: #a09898;
+  border: 4px solid #ef4444;
+  color: #ef4444;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   padding: 0;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.35);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  box-shadow: 0 2px 12px rgba(239,68,68,0.35);
 }
 .lv-fs-close-btn:hover {
+  background: #ef4444;
+  color: #ffffff;
   transform: scale(1.1);
-  box-shadow: 0 4px 18px rgba(0,0,0,0.5);
+  box-shadow: 0 4px 18px rgba(239,68,68,0.55);
 }
 
 .lv-fullscreen-wrapper {
