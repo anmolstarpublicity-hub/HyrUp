@@ -1,8 +1,6 @@
 {
   "version": 2,
-  "rootDirectory": "hyrup-frontend",
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist",
-  "installCommand": "npm install",
+  "buildCommand": "cd hyrup-frontend && npm install && npm run build",
+  "outputDirectory": "hyrup-frontend/dist",
   "framework": "vite"
 }
