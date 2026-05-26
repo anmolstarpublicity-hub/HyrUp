@@ -12,14 +12,16 @@ Screenshots/
 activity.log
 *.log
 
-# Build output
-dist/
+# Build output — Python/PyInstaller only
 build/
+/dist/
+
+# Frontend — built output and dependencies
 hyrup-frontend/dist/
 hyrup-frontend/node_modules/
 
 # Binaries
-*.exe
+HyrUpCollector.exe
 ngrok.exe
 
 # OS
