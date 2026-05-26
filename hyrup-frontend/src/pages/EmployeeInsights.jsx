@@ -1,5 +1,6 @@
 import { useMemo, useState, useEffect } from 'react';
 import React from 'react';
+import JSZip from 'jszip';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import '../shared.css';
 import './EmployeeInsights.css';
@@ -36,37 +37,176 @@ function EmptyState({ title = 'No data available', message = 'Update filters or 
 }
 
 // ── Download helpers ──────────────────────────────────────────
-function downloadCSV(rows, filename) {
-  const headers = Object.keys(rows[0]);
-  const csv = [headers.join(','), ...rows.map(r => headers.map(h => `"${String(r[h]).replace(/"/g,'""')}"`).join(','))].join('\n');
-  const blob = new Blob([csv], { type: 'text/csv' });
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename; a.click();
+function toCSV(rows, headers) {
+  return [
+    headers.join(','),
+    ...rows.map(r => headers.map(h => `"${String(r[h] ?? '').replace(/"/g, '""')}"`).join(','))
+  ].join('\n');
 }
 
-function DownloadBtn({ appData, webData, breakData, selected }) {
+function DownloadBtn({ appData, webData, breakData, selected, dateRange, metrics }) {
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const panelRef = React.useRef(null);
+
   const hasData = (appData?.length || 0) + (webData?.length || 0) + (breakData?.length || 0) > 0;
+
+  // Close on outside click
+  useEffect(() => {
+    if (!open) return;
+    const h = (e) => { if (panelRef.current && !panelRef.current.contains(e.target)) setOpen(false); };
+    document.addEventListener('mousedown', h);
+    return () => document.removeEventListener('mousedown', h);
+  }, [open]);
+
   if (!hasData) return null;
 
-  const handleDownload = () => {
-    const rows = [];
-    appData.forEach(r => rows.push({ Employee: selected, Type: 'Software', Name: r.name, Time: r.time, Distraction: '' }));
-    webData.forEach(r => rows.push({ Employee: selected, Type: 'Website', Name: r.name, Time: r.time, Distraction: r.distraction ? 'Yes' : 'No' }));
-    breakData.forEach(r => rows.push({ Employee: selected, Type: 'Break', Name: r.name, Time: r.time, Distraction: '' }));
-    const headers = ['Employee', 'Type', 'Name', 'Time', 'Distraction'];
-    const csv = [headers.join(','), ...rows.map(r => headers.map(h => `"${String(r[h]).replace(/"/g, '""')}"`).join(','))].join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `${selected}_activity_logs.csv`; a.click();
+  // ── Build date label for filenames ───────────────────────────
+  const dateLabel = dateRange
+    ? dateRange.start === dateRange.end
+      ? dateRange.start
+      : `${dateRange.start}_to_${dateRange.end}`
+    : 'all_dates';
+
+  const empLabel = (selected || 'Employee').replace(/ /g, '_');
+  const zipName  = `HyrUp_Insights_${empLabel}_${dateLabel}.zip`;
+
+  const handleDownload = async (format) => {
+    setLoading(true);
+    setOpen(false);
+
+    if (format === 'zip') {
+      const zip = new JSZip();
+
+      // ── Software CSV ──────────────────────────────────────
+      if (appData.length) {
+        const headers = ['Employee', 'Type', 'Application', 'Time_Spent'];
+        const rows = appData.map(r => ({ Employee: selected, Type: 'Software', Application: r.name, Time_Spent: r.time }));
+        zip.file(`${empLabel}_Software_${dateLabel}.csv`, toCSV(rows, headers));
+      }
+
+      // ── Website CSV ───────────────────────────────────────
+      if (webData.length) {
+        const headers = ['Employee', 'Type', 'Website', 'Time_Spent', 'Distraction'];
+        const rows = webData.map(r => ({ Employee: selected, Type: 'Website', Website: r.name, Time_Spent: r.time, Distraction: r.distraction ? 'Yes' : 'No' }));
+        zip.file(`${empLabel}_Websites_${dateLabel}.csv`, toCSV(rows, headers));
+      }
+
+      // ── Break CSV ─────────────────────────────────────────
+      if (breakData.length) {
+        const headers = ['Employee', 'Type', 'Break', 'Time_Spent'];
+        const rows = breakData.map(r => ({ Employee: selected, Type: 'Break', Break: r.name, Time_Spent: r.time }));
+        zip.file(`${empLabel}_Breaks_${dateLabel}.csv`, toCSV(rows, headers));
+      }
+
+      // ── Summary CSV ───────────────────────────────────────
+      if (metrics) {
+        const headers = ['Employee', 'Date_Range', 'Login', 'Logout', 'Work_Time', 'Idle_Time', 'Break_Time', 'Efficiency'];
+        const rows = [{
+          Employee:   selected,
+          Date_Range: dateLabel.replace(/_/g, ' '),
+          Login:      metrics.loginStr,
+          Logout:     metrics.logoutStr,
+          Work_Time:  metrics.workTime,
+          Idle_Time:  metrics.idleTime,
+          Break_Time: metrics.breakTime,
+          Efficiency: `${metrics.efficiency}%`,
+        }];
+        zip.file(`${empLabel}_Summary_${dateLabel}.csv`, toCSV(rows, headers));
+      }
+
+      const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 6 } });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = zipName;
+      a.click();
+      URL.revokeObjectURL(a.href);
+
+    } else {
+      // ── Single combined CSV ───────────────────────────────
+      const headers = ['Employee', 'Date_Range', 'Type', 'Name', 'Time_Spent', 'Distraction'];
+      const rows = [
+        ...appData.map(r  => ({ Employee: selected, Date_Range: dateLabel.replace(/_/g,' '), Type: 'Software', Name: r.name,  Time_Spent: r.time, Distraction: '' })),
+        ...webData.map(r  => ({ Employee: selected, Date_Range: dateLabel.replace(/_/g,' '), Type: 'Website',  Name: r.name,  Time_Spent: r.time, Distraction: r.distraction ? 'Yes' : 'No' })),
+        ...breakData.map(r => ({ Employee: selected, Date_Range: dateLabel.replace(/_/g,' '), Type: 'Break',    Name: r.name,  Time_Spent: r.time, Distraction: '' })),
+      ];
+      const csv  = toCSV(rows, headers);
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const a    = document.createElement('a');
+      a.href     = URL.createObjectURL(blob);
+      a.download = `HyrUp_Insights_${empLabel}_${dateLabel}.csv`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    setLoading(false);
   };
 
   return (
-    <button className="dl-btn" onClick={handleDownload} title="Download all logs as CSV">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-        <polyline points="7 10 12 15 17 10"/>
-        <line x1="12" y1="15" x2="12" y2="3"/>
-      </svg>
-      Download All Logs
-    </button>
+    <div style={{ position: 'relative' }}>
+      <button className="dl-btn" onClick={() => setOpen(o => !o)} disabled={loading}>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        {loading ? 'Preparing...' : 'Download Logs'}
+      </button>
+
+      {open && (
+        <div className="ins-dl-panel" ref={panelRef}>
+          <div className="ins-dl-header">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            <span>Download Logs</span>
+          </div>
+
+          <div className="ins-dl-meta">
+            <span className="ins-dl-emp">
+              <span className="ins-dl-avatar">{(selected || '?').charAt(0).toUpperCase()}</span>
+              {selected}
+            </span>
+            <span className="ins-dl-date">{dateLabel.replace(/_/g, ' ')}</span>
+          </div>
+
+          <div className="ins-dl-options">
+            <button className="ins-dl-opt" onClick={() => handleDownload('zip')}>
+              <div className="ins-dl-opt-icon ins-dl-opt-icon--zip">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="7 10 12 15 17 10"/>
+                  <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+              </div>
+              <div className="ins-dl-opt-text">
+                <span className="ins-dl-opt-title">ZIP Archive</span>
+                <span className="ins-dl-opt-sub">Separate CSVs for Software, Websites, Breaks + Summary</span>
+              </div>
+              <span className="ins-dl-opt-badge">Recommended</span>
+            </button>
+
+            <button className="ins-dl-opt" onClick={() => handleDownload('csv')}>
+              <div className="ins-dl-opt-icon ins-dl-opt-icon--csv">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                  <line x1="16" y1="13" x2="8" y2="13"/>
+                  <line x1="16" y1="17" x2="8" y2="17"/>
+                  <polyline points="10 9 9 9 8 9"/>
+                </svg>
+              </div>
+              <div className="ins-dl-opt-text">
+                <span className="ins-dl-opt-title">Single CSV</span>
+                <span className="ins-dl-opt-sub">All logs combined in one file</span>
+              </div>
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -317,7 +457,21 @@ export default function EmployeeInsights({ data, dateRange, selectedEmp, onBack 
           <div className="dash-sub">Individual employee activity breakdown</div>
         </div>
         <div className="dash-header-right">
-          <DownloadBtn appData={appData} webData={webData} breakData={breakData} selected={selected} />
+          <DownloadBtn
+            appData={appData}
+            webData={webData}
+            breakData={breakData}
+            selected={selected}
+            dateRange={dateRange}
+            metrics={{
+              loginStr,
+              logoutStr,
+              workTime:  formatTime(workMins),
+              idleTime:  formatTime(idleMins),
+              breakTime: formatTime(breakMins),
+              efficiency,
+            }}
+          />
         </div>
       </div>
 

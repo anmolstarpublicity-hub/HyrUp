@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { createPortal } from 'react-dom';
+import JSZip from 'jszip';
 import '../shared.css';
 import './Screenshots.css';
 
@@ -163,21 +164,57 @@ export default function Screenshots({ onBack, dateRange, data, onRefresh }) {
       }).map(f => ({ emp, file: f }))
     );
     if (!pairs.length) return;
+
+    // ── Build ZIP filename ────────────────────────────────────
+    // Collect the actual dates present in the selected files
+    const dates = [...new Set(pairs.map(p => parseFileDate(p.file)).filter(Boolean))].sort();
+    const empLabel = dlEmp === 'All' ? 'All_Employees' : dlEmp.replace(/ /g, '_');
+
+    let dateLabel = '';
+    if (dates.length === 1) {
+      // Single day — use that date
+      dateLabel = dates[0];
+    } else if (dates.length > 1) {
+      // Range — use first and last date found in the files
+      dateLabel = `${dates[0]}_to_${dates[dates.length - 1]}`;
+    } else if (dlFrom && dlTo) {
+      dateLabel = dlFrom === dlTo ? dlFrom : `${dlFrom}_to_${dlTo}`;
+    } else if (dlFrom) {
+      dateLabel = `from_${dlFrom}`;
+    } else if (dlTo) {
+      dateLabel = `until_${dlTo}`;
+    } else {
+      dateLabel = 'all_dates';
+    }
+
+    const zipName = `HyrUp_Screenshots_${empLabel}_${dateLabel}.zip`;
+
+    // ── Download all images and pack into ZIP ─────────────────
     setDlProgress({ done: 0, total: pairs.length });
+    const zip = new JSZip();
+
     for (let i = 0; i < pairs.length; i++) {
       const { emp, file } = pairs[i];
       try {
-        const res = await fetch(`${API_URL}/api/screenshots/${encodeURIComponent(emp.replace(/ /g,'_'))}/${encodeURIComponent(file)}?api_key=${API_KEY}`);
+        const res = await fetch(
+          `${API_URL}/api/screenshots/${encodeURIComponent(emp.replace(/ /g, '_'))}/${encodeURIComponent(file)}?api_key=${API_KEY}`
+        );
         const blob = await res.blob();
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `${emp.replace(/ /g,'_')}__${file}`;
-        a.click();
-        URL.revokeObjectURL(a.href);
-        await new Promise(r => setTimeout(r, 120));
+        // Organise inside ZIP: EmployeeName/filename.png
+        const folder = emp.replace(/ /g, '_');
+        zip.file(`${folder}/${file}`, blob);
       } catch {}
       setDlProgress({ done: i + 1, total: pairs.length });
     }
+
+    // ── Generate and trigger download ─────────────────────────
+    const zipBlob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 6 } });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(zipBlob);
+    a.download = zipName;
+    a.click();
+    URL.revokeObjectURL(a.href);
+
     setDlProgress(null);
     setDlOpen(false);
   };
@@ -340,12 +377,12 @@ export default function Screenshots({ onBack, dateRange, data, onRefresh }) {
                       <div className="dl-progress-track">
                         <div className="dl-progress-bar" style={{ width: `${Math.round((dlProgress.done / dlProgress.total) * 100)}%` }} />
                       </div>
-                      <span className="dl-progress-label">{dlProgress.done} / {dlProgress.total} downloaded</span>
+                      <span className="dl-progress-label">{dlProgress.done} / {dlProgress.total} packed into ZIP</span>
                     </div>
                   ) : (
                     <button className="dl-go-btn" onClick={handleDownload} disabled={!dlFilteredCount}>
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                      Download {dlFilteredCount > 0 ? `${dlFilteredCount} File${dlFilteredCount !== 1 ? 's' : ''}` : ''}
+                      Download ZIP {dlFilteredCount > 0 ? `(${dlFilteredCount} File${dlFilteredCount !== 1 ? 's' : ''})` : ''}
                     </button>
                   )}
                 </div>

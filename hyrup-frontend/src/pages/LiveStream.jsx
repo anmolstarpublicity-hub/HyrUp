@@ -214,7 +214,7 @@ function LiveCard({ emp, isOnline }) {
             </svg>
           </button>
 
-          {/* Fullscreen modal — no close button, ESC or click overlay to exit */}
+          {/* Fullscreen modal — ESC or click overlay or X button to exit */}
           {modalOpen && createPortal(
             <div
               className="lv-fullscreen-overlay"
@@ -222,6 +222,18 @@ function LiveCard({ emp, isOnline }) {
               title="Click outside or press ESC to close"
             >
               <div className="lv-fullscreen-content" onClick={e => e.stopPropagation()}>
+                {/* Close button */}
+                <button
+                  className="lv-fs-close-btn"
+                  onClick={() => setModalOpen(false)}
+                  title="Close (ESC)"
+                  aria-label="Close fullscreen"
+                >
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                  </svg>
+                </button>
                 {modalFrame ? (
                   <div ref={modalContainerRef} className="lv-fullscreen-wrapper">
                     <img
