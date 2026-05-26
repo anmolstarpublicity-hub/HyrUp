@@ -511,9 +511,28 @@ html.dark .ss-refresh-btn:hover { background: #444444; border-color: #777777; }
   height: 100%; background: linear-gradient(90deg, #008080, #66b2b2);
   border-radius: 8px; transition: width 0.3s ease;
 }
+.dl-progress-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px;
+}
 .dl-progress-label {
   font-size: 11px; font-weight: 600; color: #006666;
-  text-align: center;
+}
+.dl-cancel-btn {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 4px 10px; border-radius: 20px;
+  font-size: 11px; font-weight: 600;
+  background: rgba(239,68,68,0.08);
+  border: 1.5px solid rgba(239,68,68,0.25);
+  color: #dc2626; cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap; flex-shrink: 0;
+}
+.dl-cancel-btn:hover {
+  background: #ef4444; color: #fff;
+  border-color: #ef4444;
+  box-shadow: 0 2px 8px rgba(239,68,68,0.3);
+}
 }
 
 /* Dark theme */
@@ -533,3 +552,5 @@ html.dark .dl-date-sublabel { color: #555555; }
 html.dark .dl-count-pill { color: #66b2b2; background: rgba(102,178,178,0.08); border-color: rgba(102,178,178,0.15); }
 html.dark .dl-progress-track { background: rgba(102,178,178,0.1); }
 html.dark .dl-progress-label { color: #66b2b2; }
+html.dark .dl-cancel-btn { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.3); color: #f87171; }
+html.dark .dl-cancel-btn:hover { background: #ef4444; color: #fff; border-color: #ef4444; }

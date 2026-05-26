@@ -80,6 +80,7 @@ export default function Screenshots({ onBack, dateRange, data, onRefresh }) {
   const [dlFrom,       setDlFrom]       = useState('');
   const [dlTo,         setDlTo]         = useState('');
   const [dlProgress,   setDlProgress]   = useState(null);
+  const dlCancelRef  = useRef(false);
   const lbContentRef = useRef(null);
   const dlPanelRef   = useRef(null);
 
@@ -166,16 +167,13 @@ export default function Screenshots({ onBack, dateRange, data, onRefresh }) {
     if (!pairs.length) return;
 
     // ── Build ZIP filename ────────────────────────────────────
-    // Collect the actual dates present in the selected files
     const dates = [...new Set(pairs.map(p => parseFileDate(p.file)).filter(Boolean))].sort();
     const empLabel = dlEmp === 'All' ? 'All_Employees' : dlEmp.replace(/ /g, '_');
 
     let dateLabel = '';
     if (dates.length === 1) {
-      // Single day — use that date
       dateLabel = dates[0];
     } else if (dates.length > 1) {
-      // Range — use first and last date found in the files
       dateLabel = `${dates[0]}_to_${dates[dates.length - 1]}`;
     } else if (dlFrom && dlTo) {
       dateLabel = dlFrom === dlTo ? dlFrom : `${dlFrom}_to_${dlTo}`;
@@ -189,26 +187,46 @@ export default function Screenshots({ onBack, dateRange, data, onRefresh }) {
 
     const zipName = `HyrUp_Screenshots_${empLabel}_${dateLabel}.zip`;
 
-    // ── Download all images and pack into ZIP ─────────────────
+    // ── Reset cancel flag and start ───────────────────────────
+    dlCancelRef.current = false;
     setDlProgress({ done: 0, total: pairs.length });
     const zip = new JSZip();
 
     for (let i = 0; i < pairs.length; i++) {
+      // Check if user cancelled
+      if (dlCancelRef.current) {
+        setDlProgress(null);
+        return;
+      }
       const { emp, file } = pairs[i];
       try {
         const res = await fetch(
           `${API_URL}/api/screenshots/${encodeURIComponent(emp.replace(/ /g, '_'))}/${encodeURIComponent(file)}?api_key=${API_KEY}`
         );
         const blob = await res.blob();
-        // Organise inside ZIP: EmployeeName/filename.png
         const folder = emp.replace(/ /g, '_');
         zip.file(`${folder}/${file}`, blob);
       } catch {}
       setDlProgress({ done: i + 1, total: pairs.length });
     }
 
+    // Final cancel check before generating ZIP
+    if (dlCancelRef.current) {
+      setDlProgress(null);
+      return;
+    }
+
     // ── Generate and trigger download ─────────────────────────
-    const zipBlob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 6 } });
+    const zipBlob = await zip.generateAsync(
+      { type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 6 } },
+      ({ percent }) => setDlProgress(prev => prev ? { ...prev, zipping: Math.round(percent) } : null)
+    );
+
+    if (dlCancelRef.current) {
+      setDlProgress(null);
+      return;
+    }
+
     const a = document.createElement('a');
     a.href = URL.createObjectURL(zipBlob);
     a.download = zipName;
@@ -377,7 +395,24 @@ export default function Screenshots({ onBack, dateRange, data, onRefresh }) {
                       <div className="dl-progress-track">
                         <div className="dl-progress-bar" style={{ width: `${Math.round((dlProgress.done / dlProgress.total) * 100)}%` }} />
                       </div>
-                      <span className="dl-progress-label">{dlProgress.done} / {dlProgress.total} packed into ZIP</span>
+                      <div className="dl-progress-footer">
+                        <span className="dl-progress-label">
+                          {dlProgress.zipping != null
+                            ? `Compressing ZIP… ${dlProgress.zipping}%`
+                            : `${dlProgress.done} / ${dlProgress.total} packed into ZIP`}
+                        </span>
+                        <button
+                          className="dl-cancel-btn"
+                          onClick={() => { dlCancelRef.current = true; }}
+                          title="Cancel download"
+                        >
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"/>
+                            <line x1="6" y1="6" x2="18" y2="18"/>
+                          </svg>
+                          Cancel
+                        </button>
+                      </div>
                     </div>
                   ) : (
                     <button className="dl-go-btn" onClick={handleDownload} disabled={!dlFilteredCount}>
