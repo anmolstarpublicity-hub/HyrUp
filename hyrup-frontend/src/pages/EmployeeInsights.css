@@ -429,3 +429,79 @@ html.dark .ins-dl-opt-sub { color: #9ca3af; }
   white-space: nowrap; flex-shrink: 0;
 }
 html.dark .ins-dl-opt-badge { color: #4dd9d9; background: rgba(0,180,180,0.15); border-color: rgba(0,180,180,0.25); }
+
+/* ── Mobile Responsive ── */
+@media (max-width: 768px) {
+  .insights-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .insights-toolbar .saas-select-wrap {
+    width: 100%;
+  }
+  .shot-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .metrics-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .metric-card {
+    min-width: 0;
+  }
+  .metric-val { font-size: 22px; }
+  .st-val { font-size: 14px; }
+
+  .logs-row {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .log-box {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .chart-box {
+    padding: 0.8rem 0.5rem 0.5rem 0.5rem;
+  }
+
+  /* Download panel — full width on mobile */
+  .ins-dl-panel {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    top: auto;
+    width: 100%;
+    border-radius: 16px 16px 0 0;
+    z-index: 1000;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
+  .dl-btn {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .metrics-row {
+    grid-template-columns: 1fr;
+  }
+  .metric-val { font-size: 20px; }
+  .session-times {
+    flex-direction: column;
+    gap: 4px;
+    align-items: flex-start;
+  }
+  .st-arrow { display: none; }
+
+  .log-table .log-app-name {
+    max-width: 120px;
+  }
+}

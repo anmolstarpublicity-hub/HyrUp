@@ -346,3 +346,89 @@ html.dark .rem-tab-alert.rem-tab-active { color: #f87171 !important; }
 
 html.dark .rem-alert-emp { color: #66b2b2; }
 html.dark .rem-alert-app { color: #f87171; }
+
+/* ── Mobile Responsive ── */
+@media (max-width: 768px) {
+  .rem-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px 18px;
+  }
+  .rem-header-left {
+    gap: 12px;
+  }
+  .rem-header-right {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-start;
+  }
+
+  .rem-title { font-size: 18px; }
+  .rem-sub { font-size: 11px; }
+
+  .rem-stat-chip {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+  .rem-add-btn {
+    padding: 7px 14px;
+    font-size: 11px;
+  }
+
+  /* Tabs — full width */
+  .rem-tabs {
+    gap: 4px;
+  }
+  .rem-tab {
+    font-size: 12px;
+    padding: 7px 10px;
+    gap: 5px;
+  }
+
+  /* Reminder items — full width */
+  .rem-item {
+    padding: 10px 12px;
+    gap: 8px;
+  }
+  .rem-item-title {
+    font-size: 13px;
+  }
+
+  /* Form — full width */
+  .rem-form-row {
+    flex-direction: column;
+    gap: 6px;
+  }
+  .rem-input-sm {
+    width: 100%;
+    flex: none;
+  }
+  .rem-form-actions {
+    justify-content: stretch;
+    gap: 6px;
+  }
+  .rem-save-btn,
+  .rem-cancel-btn {
+    flex: 1;
+    text-align: center;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .rem-header {
+    padding: 12px 14px;
+  }
+  .rem-title { font-size: 16px; }
+  .rem-header-icon {
+    width: 40px;
+    height: 40px;
+  }
+  .rem-item {
+    padding: 8px 10px;
+  }
+  .rem-item-title { font-size: 12px; }
+  .rem-meta-chip { font-size: 9px; }
+}

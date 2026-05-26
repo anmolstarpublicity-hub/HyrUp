@@ -120,3 +120,26 @@
   transition: background 0.15s ease;
 }
 .dp-today-btn:hover { background: #008080; color: #ffffff; }
+
+/* ── Mobile Responsive ── */
+@media (max-width: 768px) {
+  .dp-calendar {
+    width: calc(100vw - 32px);
+    max-width: 300px;
+  }
+
+  .dp-trigger {
+    font-size: 11px;
+    padding: 8px 10px;
+  }
+
+  .dp-cell {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .dp-calendar {
+    width: calc(100vw - 20px);
+  }
+}

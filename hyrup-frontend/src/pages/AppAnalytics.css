@@ -339,3 +339,67 @@ html.dark .empty-state-title {
 html.dark .empty-state-message {
   color: #888888;
 }
+
+/* ── Mobile Responsive ── */
+@media (max-width: 768px) {
+  .analytics-layout {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  /* App list card — full width on mobile */
+  .app-list-card {
+    width: 100%;
+    flex-shrink: 1;
+  }
+  .app-list-body {
+    max-height: 200px;
+  }
+
+  /* Tab bar — scrollable on mobile */
+  .tab-bar {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    gap: 2px;
+    padding: 3px;
+    scrollbar-width: none;
+  }
+  .tab-bar::-webkit-scrollbar { display: none; }
+  .tab-btn {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+
+  .analytics-tabs {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .chart-box {
+    padding: 0.8rem 0.5rem 0.5rem 0.5rem;
+  }
+
+  /* Kanban board — horizontal scroll on mobile */
+  .kanban-board {
+    gap: 8px;
+  }
+  .kanban-col {
+    min-width: 200px;
+    max-width: 200px;
+  }
+  .layout-kanban .kanban-col {
+    min-width: 220px;
+    max-width: 220px;
+  }
+}
+
+@media (max-width: 480px) {
+  .tab-btn {
+    font-size: 11px;
+    padding: 5px 8px;
+  }
+  .app-item-name { font-size: 11px; }
+  .app-item-time { font-size: 10px; }
+}

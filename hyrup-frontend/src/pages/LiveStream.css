@@ -286,3 +286,81 @@ html.dark .lv-stat-val { color: #a78bfa; }
   max-height: none;
   object-fit: contain;
 }
+
+/* ── Mobile Responsive ── */
+@media (max-width: 768px) {
+  /* Grid — single column on mobile */
+  .lv-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px;
+  }
+
+  /* Card header — wrap on small screens */
+  .lv-card-header {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px 12px;
+  }
+  .lv-header-right {
+    flex-wrap: wrap;
+    gap: 6px;
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  /* Card footer — wrap on small screens */
+  .lv-card-footer {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 8px 12px;
+    justify-content: flex-start;
+  }
+  .lv-stat-divider { display: none; }
+  .lv-stat {
+    flex-direction: row;
+    gap: 6px;
+    align-items: center;
+  }
+  .lv-stat-label { font-size: 10px; }
+  .lv-stat-val { font-size: 11px; }
+
+  /* Buttons — smaller on mobile */
+  .lv-btn {
+    padding: 6px 12px;
+    font-size: 11px;
+  }
+
+  /* Info/warn bars — smaller text */
+  .lv-info-bar,
+  .lv-warn-bar {
+    font-size: 11px;
+    padding: 6px 10px;
+  }
+
+  /* Connection badge */
+  .lv-conn-badge {
+    font-size: 10px;
+    padding: 4px 10px;
+  }
+
+  /* Fullscreen modal — proper mobile sizing */
+  .lv-fullscreen-overlay {
+    padding: 0;
+  }
+  .lv-fullscreen-content {
+    padding: 8px;
+  }
+  .lv-fs-close-btn {
+    top: 10px;
+    right: 10px;
+    width: 36px;
+    height: 36px;
+  }
+}
+
+@media (max-width: 480px) {
+  .lv-emp-name { font-size: 13px; }
+  .lv-btn { padding: 5px 10px; font-size: 11px; }
+  .lv-avatar { width: 32px; height: 32px; font-size: 12px; }
+  .lv-card-header { padding: 8px 10px; }
+}

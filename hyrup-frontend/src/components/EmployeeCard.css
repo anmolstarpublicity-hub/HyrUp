@@ -155,3 +155,58 @@ html.dark .ec-time-label { color: #555555; }
 html.dark .ec-time-val { color: #66b2b2; }
 html.dark .ec-divider { background: rgba(153,153,153,0.15); }
 html.dark .ec-orb { border-color: rgba(102,178,178,0.15); }
+
+/* ── Mobile Responsive ── */
+@media (max-width: 768px) {
+  .ec-card {
+    border-radius: 12px;
+  }
+
+  .ec-top {
+    padding: 14px 12px 12px 12px;
+    gap: 10px;
+  }
+
+  .ec-avatar {
+    width: 44px;
+    height: 44px;
+    font-size: 16px;
+    border-radius: 12px;
+  }
+
+  .ec-name {
+    font-size: 14px;
+    margin-bottom: 5px;
+  }
+
+  .ec-status-pill {
+    font-size: 10px;
+    padding: 2px 9px;
+  }
+
+  .ec-footer {
+    padding: 10px 12px;
+  }
+
+  .ec-time-label { font-size: 9px; }
+  .ec-time-val { font-size: 12px; }
+}
+
+@media (max-width: 480px) {
+  .ec-top {
+    padding: 12px 10px 10px 10px;
+    gap: 8px;
+  }
+
+  .ec-avatar {
+    width: 38px;
+    height: 38px;
+    font-size: 14px;
+    border-radius: 10px;
+  }
+
+  .ec-name { font-size: 13px; }
+  .ec-status-pill { font-size: 9px; }
+  .ec-footer { padding: 8px 10px; }
+  .ec-time-val { font-size: 11px; }
+}

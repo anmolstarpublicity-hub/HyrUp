@@ -181,6 +181,21 @@ html.dark .fl-online { background: #333333; border-color: #555555; color: #99999
 html.dark .fl-offline { background: #333333; border-color: #555555; color: #777777; border-left-color: #777777; }
 
 /* ── Responsive: Mobile / Tablet adjustments ── */
+@media (max-width: 768px) {
+  .main-content {
+    margin: 0 !important;
+    margin-top: 72px !important;
+    border-radius: 0 !important;
+    padding: 0.8rem !important;
+    min-height: calc(100vh - 72px) !important;
+    border-left: none !important;
+    border-right: none !important;
+  }
+  .main-expanded {
+    margin-left: 0 !important;
+  }
+}
+
 @media (max-width: 900px) {
   .sidebar { position: fixed; width: 100%; height: auto; top: 0; left: 0; z-index: 220; }
   .sb-inner { height: auto; border-radius: 0 0 12px 12px; padding: 8px; }

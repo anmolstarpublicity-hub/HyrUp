@@ -129,3 +129,49 @@ html.dark .fl-online { background: rgba(102,178,178,0.08); border-color: rgba(10
 html.dark .fl-offline { background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.2); color: #fca5a5; border-left-color: #EF4444; }
 html.dark .no-data { background: #222222; border-color: rgba(153,153,153,0.12); color: #777777; }
 html.dark .no-emp { color: #555555; }
+
+/* ── Mobile Responsive ── */
+@media (max-width: 768px) {
+  .emp-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .dash-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+  }
+  .dash-header-left, .dash-header-right {
+    width: 100%;
+  }
+  .dash-header-right {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .dash-refresh-badge {
+    font-size: 10px;
+    padding: 4px 10px;
+  }
+  .dash-refresh-btn {
+    font-size: 11px;
+    padding: 5px 10px;
+  }
+
+  .filter-label {
+    font-size: 12px;
+    padding: 0.4rem 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .emp-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .dash-title { font-size: 16px; }
+  .dash-sub { font-size: 11px; }
+}

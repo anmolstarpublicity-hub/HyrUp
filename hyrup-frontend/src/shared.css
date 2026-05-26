@@ -279,3 +279,96 @@ html.dark .nt-close { background: rgba(102,178,178,0.1); color: #66b2b2; }
 html.dark .nt-close:hover { background: rgba(239,68,68,0.15); color: #f87171; }
 html.dark .nt-btn-read { background: rgba(102,178,178,0.08); border-color: rgba(102,178,178,0.25); color: #6ee7b7; }
 html.dark .nt-btn-read:hover { background: rgba(102,178,178,0.15); border-color: #66b2b2; }
+
+/* ── Mobile Responsive ── */
+@media (max-width: 768px) {
+  .dash-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .dash-header-left, .dash-header-right {
+    width: 100%;
+  }
+  .dash-header-right {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .dash-title { font-size: 20px; }
+  .dash-sub { font-size: 12px; }
+  .log-table td, .log-table th { padding: 6px 8px; font-size: 12px; }
+  .back-btn { padding: 6px 12px; font-size: 12px; }
+
+  /* Toast stack — full width on mobile */
+  .toast-stack {
+    top: 80px;
+    right: 8px;
+    left: 8px;
+    align-items: stretch;
+  }
+  .nt-card {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .dash-title { font-size: 17px; }
+  .log-table td, .log-table th { padding: 5px 6px; font-size: 11px; }
+  .back-btn { padding: 5px 10px; font-size: 11px; }
+}
+
+/* ── Global Mobile Responsive ── */
+@media (max-width: 768px) {
+  .dash-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .dash-header-left,
+  .dash-header-right {
+    width: 100%;
+  }
+  .dash-header-right {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .dash-title { font-size: 20px; }
+  .dash-sub { font-size: 12px; }
+
+  .log-table td,
+  .log-table th {
+    padding: 6px 8px;
+    font-size: 12px;
+  }
+
+  .back-btn {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  /* Toast stack — full width on mobile */
+  .toast-stack {
+    top: auto;
+    bottom: 16px;
+    right: 12px;
+    left: 12px;
+    align-items: stretch;
+  }
+  .nt-card {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .dash-title { font-size: 17px; }
+  .dash-sub { font-size: 11px; }
+  .log-table td,
+  .log-table th {
+    padding: 5px 6px;
+    font-size: 11px;
+  }
+  .back-btn {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+}

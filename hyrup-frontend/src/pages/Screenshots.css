@@ -533,7 +533,6 @@ html.dark .ss-refresh-btn:hover { background: #444444; border-color: #777777; }
   border-color: #ef4444;
   box-shadow: 0 2px 8px rgba(239,68,68,0.3);
 }
-}
 
 /* Dark theme */
 html.dark .ss-download-btn { background: #333333; color: #66b2b2; border-color: rgba(102,178,178,0.3); }
@@ -554,3 +553,93 @@ html.dark .dl-progress-track { background: rgba(102,178,178,0.1); }
 html.dark .dl-progress-label { color: #66b2b2; }
 html.dark .dl-cancel-btn { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.3); color: #f87171; }
 html.dark .dl-cancel-btn:hover { background: #ef4444; color: #fff; border-color: #ef4444; }
+
+/* ── Mobile Responsive ── */
+@media (max-width: 768px) {
+  /* Header buttons — wrap on mobile */
+  .dash-header-right,
+  .dash-header > div:last-child {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  /* Screenshot grid — 2 columns on mobile */
+  .screenshot-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    overflow-x: unset;
+    flex-wrap: unset;
+    gap: 8px;
+    padding-bottom: 0;
+  }
+  .screenshot-card {
+    min-width: 0;
+    max-width: 100%;
+    width: 100%;
+  }
+
+  /* Download panel — full width bottom sheet on mobile */
+  .dl-panel {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    top: auto;
+    width: 100%;
+    border-radius: 16px 16px 0 0;
+    z-index: 1001;
+    max-height: 85vh;
+    overflow-y: auto;
+  }
+
+  /* Action buttons — smaller on mobile */
+  .ss-select-btn,
+  .ss-select-all-btn,
+  .ss-delete-btn,
+  .ss-cancel-btn,
+  .ss-refresh-btn,
+  .ss-download-btn {
+    font-size: 11px;
+    padding: 6px 10px;
+  }
+
+  .ss-badge {
+    font-size: 10px;
+    padding: 2px 8px;
+  }
+
+  /* Lightbox — full screen on mobile */
+  .lb-overlay { padding: 0; }
+  .lb-content {
+    border-radius: 0;
+    max-width: 100vw;
+    max-height: 100vh;
+    padding: 8px;
+  }
+  .lb-toolbar button {
+    padding: 5px 8px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .screenshot-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ss-select-btn,
+  .ss-select-all-btn,
+  .ss-delete-btn,
+  .ss-cancel-btn,
+  .ss-refresh-btn,
+  .ss-download-btn {
+    font-size: 10px;
+    padding: 5px 8px;
+  }
+
+  .dl-date-row {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+  .dl-date-sep { display: none; }
+}
