@@ -52,12 +52,20 @@ html.dark {
   --input-color:      #999999;
 }
 
-html, body, #root, .app-layout {
+html, body, #root {
   font-family: 'Inter', 'Segoe UI', sans-serif;
   min-height: 100vh;
   color: var(--text);
   background: var(--page-bg) fixed;
   transition: background 0.3s ease, color 0.3s ease;
+}
+
+.app-layout {
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  min-height: 100vh;
+  color: var(--text);
+  background: var(--page-bg) fixed;
+  display: flex;
 }
 
 /* ── Global box shadow ── */
@@ -181,53 +189,30 @@ html.dark .fl-online { background: #333333; border-color: #555555; color: #99999
 html.dark .fl-offline { background: #333333; border-color: #555555; color: #777777; border-left-color: #777777; }
 
 /* ── Responsive: Mobile / Tablet adjustments ── */
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .main-content {
     margin: 0 !important;
-    margin-top: 72px !important;
-    border-radius: 0 !important;
+    margin-top: 64px !important;
     padding: 0.8rem !important;
-    min-height: calc(100vh - 72px) !important;
+    min-height: calc(100vh - 64px) !important;
+    border-radius: 0 !important;
     border-left: none !important;
     border-right: none !important;
+    border-top: none !important;
   }
-  .main-expanded {
-    margin-left: 0 !important;
-  }
-}
-
-@media (max-width: 900px) {
-  .sidebar { position: fixed; width: 100%; height: auto; top: 0; left: 0; z-index: 220; }
-  .sb-inner { height: auto; border-radius: 0 0 12px 12px; padding: 8px; }
-  .sb-scroll { max-height: 56px; display: flex; flex-direction: row; gap: 6px; overflow-x: auto; }
-  .sb-nav-btn { white-space: nowrap; flex: 0 0 auto; }
-
-  .main-content {
-    margin: 0.8rem; /* remove left sidebar offset */
-    margin-top: calc(0.8rem + 72px); /* leave space for top sidebar */
-    padding: 0.8rem 1rem 1rem 1rem;
-    min-height: calc(100vh - 88px);
-    border-radius: 12px;
-  }
-
-  /* Reduce heavy shadows and spacing on small screens */
-  .main-content, .ec-card, .dash-header { box-shadow: none !important; }
-
-  /* Make grids single-column for small screens */
+  .main-expanded { margin-left: 0 !important; }
+  .main-content, .ec-card { box-shadow: none !important; }
   .lv-grid, .screenshot-grid { grid-template-columns: 1fr !important; gap: 12px; }
-
-  /* Fullscreen overlays should stay fixed and avoid scroll jump */
   .lv-fullscreen-content, .lb-content { padding: 6px; }
-
-  /* Header and buttons scale down */
-  .dash-header { padding: 10px; border-radius: 10px; }
   .back-btn { padding: 8px 10px; font-size: 13px; }
 }
 
 @media (max-width: 480px) {
-  .sb-inner { padding: 6px; }
-  .sb-logo-img { width: 120px; height: 40px; }
-  .main-content { margin-top: calc(0.8rem + 64px); padding: 0.6rem; }
+  .main-content {
+    margin-top: 58px !important;
+    padding: 0.5rem !important;
+    min-height: calc(100vh - 58px) !important;
+  }
   .dash-title { font-size: 16px; }
   .lv-btn { padding: 6px 10px; font-size: 12px; }
   .lv-emp-name { font-size: 13px; }
