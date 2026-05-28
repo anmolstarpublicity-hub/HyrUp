@@ -89,54 +89,37 @@ export default function Sidebar({ active, onNav, dateRange, onDateChange, onOpen
 
         {/* Header */}
         <div className="sb-header">
-          {/* Logo — always on the left */}
           <div className="sb-logo">
             <img src="/logo.png" alt="logo" className="sb-logo-img" />
           </div>
-
-          {/* All buttons — always on the right */}
-          <div className="sb-topbar-right">
-            {isMobile && (
-              <>
-                {/* Bell */}
-                <button
-                  className={`sb-reminder-btn mobile-action${pendingCount > 0 ? ' sb-has-unread' : ''}`}
-                  title="Alerts"
-                  onClick={() => { onNav('Reminders'); setMobileOpen(false); }}
-                >
-                  <svg className="sb-bell-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-                    <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-                  </svg>
-                  {pendingCount > 0 && <span className="sb-reminder-dot">{pendingCount > 9 ? '9+' : pendingCount}</span>}
-                </button>
-
-                {/* Theme toggle — SaaS sun/moon */}
-                <button className="sb-theme-toggle" onClick={toggleTheme} aria-label={isDark ? 'Switch to light' : 'Switch to dark'}>
-                  {isDark ? (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <circle cx="12" cy="12" r="5"/>
-                      <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
-                      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-                      <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
-                      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-                    </svg>
-                  ) : (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-                    </svg>
-                  )}
-                </button>
-              </>
-            )}
-
-            {/* Hamburger — always visible */}
-            <button className="sb-hamburger" onClick={toggle} aria-expanded={mobileOpen} aria-label={mobileOpen ? 'Close menu' : 'Open menu'}>
-              <span className="hbar" />
-              <span className="hbar" />
-              <span className="hbar" />
-            </button>
-          </div>
+          {isMobile && (
+            <div className="sb-actions">
+              <button
+                className={`sb-reminder-btn mobile-action${pendingCount > 0 ? ' sb-has-unread' : ''}`}
+                title="Alerts"
+                onClick={() => {
+                  onNav('Reminders');
+                  setMobileOpen(false);
+                }}
+              >
+                <span className="sb-reminder-ring" />
+                <svg className="sb-bell-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                  <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                </svg>
+                <span className="sb-reminder-label">Alerts</span>
+                {pendingCount > 0 && <span className="sb-reminder-dot">{pendingCount > 9 ? '9+' : pendingCount}</span>}
+              </button>
+              <button className="sb-theme-toggle" onClick={toggleTheme} aria-label={isDark ? 'Light mode' : 'Dark mode'}>
+                {isDark ? '🌙' : '☀️'}
+              </button>
+            </div>
+          )}
+          <button className="sb-hamburger" onClick={toggle} aria-expanded={mobileOpen} aria-label={mobileOpen ? 'Close menu' : 'Open menu'}>
+            <span className="hbar" />
+            <span className="hbar" />
+            <span className="hbar" />
+          </button>
         </div>
 
         {/* Backdrop for mobile drawer */}

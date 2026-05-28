@@ -59,15 +59,6 @@ html.dark .sb-inner { background: #222222 !important; border-color: #555555 !imp
 }
 .sb-collapsed .sb-header { justify-content: center; }
 
-/* Right-side button group — used on both desktop and mobile */
-.sb-topbar-right {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-shrink: 0;
-  margin-left: auto;
-}
-
 .sb-logo {
   display: flex; align-items: center; gap: 10px;
   overflow: hidden; min-width: 0; flex: 1;
@@ -250,119 +241,112 @@ html.dark .sb-nav-active .sb-nav-icon { color: #008080 !important; background: r
 
 /* Mobile-specific sidebar: become a topbar and a dropdown drawer */
 @media (max-width: 900px) {
-  /* ── Sidebar becomes a fixed topbar ── */
   .sidebar {
     position: fixed; top: 0; left: 0; right: 0;
-    width: 100%; height: auto; margin: 0;
-    z-index: 300; background: transparent;
-    padding: 6px 8px;
+    width: 100%; height: auto; margin: 0; z-index: 300;
+    background: transparent; padding: 8px 10px;
   }
-
-  /* ── Topbar inner — single row, fixed height ── */
   .sidebar .sb-inner {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    align-items: center;
+    display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
     justify-content: space-between;
-    height: 52px; min-height: 52px; max-height: 52px;
-    padding: 0 10px;
-    border-radius: 14px;
+    flex-direction: row; height: auto; min-height: 56px; padding: 6px 10px; border-radius: 12px;
     background: var(--card-bg);
-    border: 1px solid rgba(0,128,128,0.15);
-    box-shadow: 0 2px 12px rgba(0,128,128,0.1);
-    overflow: hidden;
-    gap: 0;
+    border: 1px solid rgba(0,128,128,0.12);
   }
+  .sb-scroll { display: none; }
 
-  /* ── Logo — left ── */
-  .sb-logo { flex: 0 0 auto; }
-  .sb-logo-img { width: 100px; height: 30px; object-fit: contain; object-position: left center; }
+  /* When closed on mobile, keep the topbar compact; drawer only appears when open */
+  .sidebar.mobile .sb-scroll { display: none; }
 
-  /* ── Right button group ── */
-  .sb-topbar-right {
-    display: flex !important;
-    align-items: center;
-    gap: 6px;
-    margin-left: auto;
-    flex-shrink: 0;
-  }
-
-  /* ── Bell button ── */
-  .sb-reminder-btn.mobile-action {
-    width: 34px; height: 34px; min-width: 34px;
-    padding: 0; border-radius: 9px;
-    justify-content: center; position: relative;
-    border: 1.5px solid rgba(0,128,128,0.2);
-    background: rgba(0,128,128,0.06);
-    color: #008080;
-  }
-  .sb-reminder-btn.mobile-action .sb-reminder-label { display: none; }
-  .sb-reminder-btn.mobile-action .sb-bell-icon { width: 15px; height: 15px; }
-  .sb-reminder-btn.mobile-action .sb-reminder-ring { display: none; }
-
-  /* ── Theme toggle — SaaS icon button ── */
-  .sb-theme-toggle {
-    width: 34px; height: 34px;
-    border-radius: 9px;
-    border: 1.5px solid rgba(0,128,128,0.2);
-    background: rgba(0,128,128,0.06);
-    color: #008080;
-    display: inline-flex; align-items: center; justify-content: center;
-    cursor: pointer; transition: all 0.2s ease; flex-shrink: 0; padding: 0;
-    font-size: 0;
-  }
-  .sb-theme-toggle:hover { background: #008080; border-color: #008080; color: #ffffff; }
-  html.dark .sb-theme-toggle { border-color: rgba(102,178,178,0.3); background: rgba(102,178,178,0.08); color: #66b2b2; }
-  html.dark .sb-theme-toggle:hover { background: #008080; border-color: #008080; color: #ffffff; }
-
-  /* ── Hamburger ── */
-  .sb-hamburger { width: 34px; height: 34px; flex-shrink: 0; }
-
-  /* ── Hide scroll/footer by default ── */
-  .sb-scroll { display: none !important; }
-  .sidebar.mobile .sb-footer { display: none !important; }
-
-  /* ── Open drawer state ── */
+  /* When opened on mobile, show the drawer panel below header */
   .sidebar.mobile-open {
-    position: fixed; inset: 0;
-    padding: 6px 8px 8px;
+    box-shadow: none;
+    position: fixed;
+    inset: 0;
+    padding: 12px 10px 10px;
     z-index: 420;
-    background: rgba(0,0,0,0.5);
-    height: 100vh;
+    background: rgba(255,255,255,0.96);
   }
   .sidebar.mobile-open .sb-inner {
     flex-direction: column;
     align-items: stretch;
-    height: auto; max-height: 100vh;
-    border-radius: 14px;
-    overflow: visible;
-    padding: 0;
-  }
-  .sidebar.mobile-open .sb-header {
-    display: flex; flex-direction: row; align-items: center;
-    padding: 0 12px; height: 52px; min-height: 52px;
-    border-bottom: 1px solid rgba(0,128,128,0.1);
-    flex-shrink: 0;
+    gap: 12px;
+    border-radius: 0 0 12px 12px;
+    height: auto;
+    max-height: calc(100vh - 20px);
   }
   .sidebar.mobile-open .sb-scroll {
     display: flex !important; flex-direction: column;
-    width: 100%; background: var(--card-bg);
+    position: relative;
+    width: 100%;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    box-shadow: 0 10px 36px rgba(0,0,0,0.16);
     padding: 12px;
-    max-height: calc(100vh - 70px);
-    overflow-y: auto; z-index: 430;
+    max-height: calc(100vh - 172px);
+    overflow-y: auto;
+    z-index: 430;
+    transform-origin: top center;
     animation: sb-slide 180ms ease-out;
-    border-radius: 0 0 14px 14px;
   }
+  .sb-actions {
+    display: none;
+  }
+  .sidebar.mobile .sb-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+  }
+  .sidebar.mobile .sb-logo-img {
+    width: 120px;
+    height: 34px;
+  }
+  .sidebar.mobile .sb-hamburger {
+    margin-left: 8px;
+  }
+  .sb-reminder-btn.mobile-action {
+    min-width: 44px;
+    height: 44px;
+    padding: 0;
+    border-radius: 14px;
+    justify-content: center;
+    position: relative;
+  }
+  .sb-reminder-btn.mobile-action .sb-reminder-label {
+    display: none;
+  }
+  .sb-reminder-btn.mobile-action .sb-bell-icon {
+    width: 18px;
+    height: 18px;
+  }
+  .sb-theme-toggle {
+    width: 44px; height: 44px;
+    border-radius: 14px;
+    border: 1px solid var(--card-border);
+    background: var(--card-bg);
+    color: var(--text);
+    font-size: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+  }
+  .sb-theme-toggle:hover {
+    background: rgba(0,128,128,0.08);
+    transform: translateY(-1px);
+  }
+  .sb-logo { flex: 1 1 auto; min-width: 0; }
+  .sb-logo-img { width: 130px; height: 40px; }
+  .sb-hamburger { margin-left: auto; }
+  .sidebar.mobile .sb-footer { display: none !important; }
   .sidebar.mobile-open .sb-footer { display: flex !important; }
-
-  /* ── Nav items in drawer ── */
-  .sb-nav-btn { width: 100%; text-align: left; padding: 10px 12px; border-radius: 10px; height: 44px; }
-  .sb-presets { display: flex; gap: 6px; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
-  .sb-presets::-webkit-scrollbar { display: none; }
-
-  /* ── Backdrop ── */
-  .sb-backdrop { position: fixed; inset: 0; background: transparent; z-index: 350; pointer-events: auto; }
+  .sb-nav-btn { width: 100%; text-align: left; padding: 10px 12px; border-radius: 10px; }
+  .sb-presets { display: flex; gap: 8px; flex-wrap: nowrap; overflow-x: auto; }
+  .sb-backdrop {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.34); z-index: 350; pointer-events: auto;
+  }
   body.sb-menu-open { overflow: hidden; }
 }
 
@@ -372,13 +356,9 @@ html.dark .sb-nav-active .sb-nav-icon { color: #008080 !important; background: r
 }
 
 @media (max-width: 480px) {
-  .sidebar { padding: 5px 6px; }
-  .sidebar .sb-inner { height: 48px; min-height: 48px; max-height: 48px; padding: 0 8px; border-radius: 12px; }
-  .sb-logo-img { width: 88px; height: 26px; }
-  .sb-hamburger { width: 30px; height: 30px; }
-  .sb-reminder-btn.mobile-action { width: 30px; height: 30px; min-width: 30px; border-radius: 8px; }
-  .sb-theme-toggle { width: 30px; height: 30px; border-radius: 8px; }
-  .sidebar.mobile-open .sb-scroll { padding: 8px; max-height: calc(100vh - 64px); }
+  .sidebar .sb-inner { height: 52px; padding: 6px 10px; }
+  .sb-logo-img { width: 120px; height: 36px; }
+  .sidebar.mobile-open .sb-scroll { padding: 8px; }
 }
 html.dark .sb-divider { border-top-color: #333333 !important; }
 

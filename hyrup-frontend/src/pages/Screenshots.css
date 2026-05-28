@@ -140,16 +140,32 @@
 }
 .ss-badge-emp { color: #10B981; background: rgba(16,185,129,0.08); border-color: rgba(16,185,129,0.2); }
 
+.dash-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.dash-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 /* Grouped layout */
 .ss-grouped { display: flex; flex-direction: column; gap: 24px; }
 .ss-group-header {
-  display: flex; align-items: center; gap: 10px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px; flex-wrap: wrap;
   margin-bottom: 12px; padding: 10px 14px;
   background: #e0f2f2;
   border: 1px solid rgba(0,128,128,0.2);
   border-left: 4px solid #008080;
   border-radius: 12px;
 }
+.ss-group-name { min-width: 0; }
 .ss-group-avatar {
   width: 32px; height: 32px; border-radius: 50%;
   background: linear-gradient(135deg, #008080, #66b2b2);
@@ -282,63 +298,63 @@ html.dark .screenshot-empty-state .empty-state-message {
 
 /* ── Select & Refresh unique buttons ── */
 .ss-select-btn {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 7px 16px; border-radius: 10px;
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 12px; border-radius: 8px;
   border: 1.5px solid rgba(0,128,128,0.3);
   background: #ffffff; color: #008080;
-  font-size: 12px; font-weight: 700; cursor: pointer;
+  font-size: 11px; font-weight: 600; cursor: pointer;
   font-family: 'Inter', sans-serif;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 8px rgba(0,128,128,0.1);
+  box-shadow: 0 1px 4px rgba(0,128,128,0.08);
 }
-.ss-select-btn:hover { background: #008080; color: #ffffff; border-color: #008080; box-shadow: 0 4px 14px rgba(0,128,128,0.3); transform: translateY(-1px); }
+.ss-select-btn:hover { background: #008080; color: #ffffff; border-color: #008080; box-shadow: 0 2px 8px rgba(0,128,128,0.2); transform: translateY(-1px); }
 
 .ss-select-all-btn {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 7px 16px; border-radius: 10px;
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 12px; border-radius: 8px;
   border: 1.5px solid rgba(0,128,128,0.3);
   background: #f0fafa; color: #006666;
-  font-size: 12px; font-weight: 700; cursor: pointer;
+  font-size: 11px; font-weight: 600; cursor: pointer;
   font-family: 'Inter', sans-serif;
   transition: all 0.2s ease;
 }
 .ss-select-all-btn:hover { background: #e0f2f2; border-color: #008080; }
 
 .ss-delete-btn {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 7px 16px; border-radius: 10px;
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 12px; border-radius: 8px;
   border: 1.5px solid rgba(239,68,68,0.4);
   background: rgba(239,68,68,0.08); color: #DC2626;
-  font-size: 12px; font-weight: 700; cursor: pointer;
+  font-size: 11px; font-weight: 600; cursor: pointer;
   font-family: 'Inter', sans-serif;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 8px rgba(239,68,68,0.1);
+  box-shadow: 0 1px 4px rgba(239,68,68,0.08);
 }
-.ss-delete-btn:hover:not(:disabled) { background: #EF4444; color: #ffffff; border-color: #EF4444; box-shadow: 0 4px 14px rgba(239,68,68,0.3); transform: translateY(-1px); }
+.ss-delete-btn:hover:not(:disabled) { background: #EF4444; color: #ffffff; border-color: #EF4444; box-shadow: 0 2px 8px rgba(239,68,68,0.2); transform: translateY(-1px); }
 .ss-delete-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .ss-cancel-btn {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 7px 16px; border-radius: 10px;
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 12px; border-radius: 8px;
   border: 1.5px solid rgba(153,153,153,0.3);
   background: #f5f5f5; color: #555555;
-  font-size: 12px; font-weight: 700; cursor: pointer;
+  font-size: 11px; font-weight: 600; cursor: pointer;
   font-family: 'Inter', sans-serif;
   transition: all 0.2s ease;
 }
 .ss-cancel-btn:hover { background: #eeeeee; border-color: #999999; }
 
 .ss-refresh-btn {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 7px 16px; border-radius: 10px;
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 12px; border-radius: 8px;
   border: 1.5px solid rgba(0,128,128,0.25);
   background: #ffffff; color: #008080;
-  font-size: 12px; font-weight: 700; cursor: pointer;
+  font-size: 11px; font-weight: 600; cursor: pointer;
   font-family: 'Inter', sans-serif;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 8px rgba(0,128,128,0.08);
+  box-shadow: 0 1px 4px rgba(0,128,128,0.06);
 }
-.ss-refresh-btn:hover { background: #f0fafa; border-color: #008080; box-shadow: 0 4px 14px rgba(0,128,128,0.2); }
+.ss-refresh-btn:hover { background: #f0fafa; border-color: #008080; box-shadow: 0 2px 8px rgba(0,128,128,0.15); }
 .ss-refresh-btn.spinning svg { animation: spin-icon 0.8s linear; }
 
 /* Dark theme */
@@ -355,16 +371,16 @@ html.dark .ss-refresh-btn:hover { background: #444444; border-color: #777777; }
 
 /* ── Download button & panel ── */
 .ss-download-btn {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 7px 16px; border-radius: 10px;
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 12px; border-radius: 8px;
   border: 1.5px solid rgba(0,128,128,0.3);
   background: #ffffff; color: #008080;
-  font-size: 12px; font-weight: 700; cursor: pointer;
+  font-size: 11px; font-weight: 600; cursor: pointer;
   font-family: 'Inter', sans-serif;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 8px rgba(0,128,128,0.08);
+  box-shadow: 0 1px 4px rgba(0,128,128,0.06);
 }
-.ss-download-btn:hover { background: #008080; color: #ffffff; border-color: #008080; box-shadow: 0 4px 14px rgba(0,128,128,0.3); transform: translateY(-1px); }
+.ss-download-btn:hover { background: #008080; color: #ffffff; border-color: #008080; box-shadow: 0 2px 8px rgba(0,128,128,0.2); transform: translateY(-1px); }
 
 .dl-panel {
   position: absolute; top: calc(100% + 8px); right: 0;
