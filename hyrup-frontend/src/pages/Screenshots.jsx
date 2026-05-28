@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { createPortal } from 'react-dom';
+import JSZip from 'jszip';
 import '../shared.css';
 import './Screenshots.css';
 
@@ -79,6 +80,7 @@ export default function Screenshots({ onBack, dateRange, data, onRefresh }) {
   const [dlFrom,       setDlFrom]       = useState('');
   const [dlTo,         setDlTo]         = useState('');
   const [dlProgress,   setDlProgress]   = useState(null);
+  const dlAbortRef = useRef(false);
   const lbContentRef = useRef(null);
   const dlPanelRef   = useRef(null);
 
@@ -152,6 +154,8 @@ export default function Screenshots({ onBack, dateRange, data, onRefresh }) {
   }, [dlOpen]);
 
   const handleDownload = async () => {
+    dlAbortRef.current = false;
+
     const empsToDownload = dlEmp === 'All' ? employees : [dlEmp];
     const pairs = empsToDownload.flatMap(emp =>
       (shotsByEmp[emp] || []).filter(f => {
@@ -164,20 +168,41 @@ export default function Screenshots({ onBack, dateRange, data, onRefresh }) {
     );
     if (!pairs.length) return;
     setDlProgress({ done: 0, total: pairs.length });
+
+    const zip = new JSZip();
     for (let i = 0; i < pairs.length; i++) {
+      if (dlAbortRef.current) break;
       const { emp, file } = pairs[i];
       try {
-        const res = await fetch(`${API_URL}/api/screenshots/${encodeURIComponent(emp.replace(/ /g,'_'))}/${encodeURIComponent(file)}?api_key=${API_KEY}`);
+        const res = await apiFetch(`/api/screenshots/${encodeURIComponent(emp.replace(/ /g, '_'))}/${encodeURIComponent(file)}`);
+        if (!res.ok) throw new Error('Failed to fetch screenshot');
         const blob = await res.blob();
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `${emp.replace(/ /g,'_')}__${file}`;
-        a.click();
-        URL.revokeObjectURL(a.href);
-        await new Promise(r => setTimeout(r, 120));
-      } catch {}
+        zip.folder(emp.replace(/\s+/g, '_')).file(file, blob, { binary: true });
+      } catch (error) {
+        console.error('Screenshot ZIP download error:', error);
+      }
       setDlProgress({ done: i + 1, total: pairs.length });
     }
+
+    if (!dlAbortRef.current) {
+      try {
+        const dateLabel = [dlFrom || dateRange?.start, dlTo || dateRange?.end].filter(Boolean).join('_') || 'all_dates';
+        const targetEmp = dlEmp === 'All' ? 'AllEmployees' : dlEmp.replace(/\s+/g, '_');
+        const zipName = `HyrUp_Screenshots_${targetEmp}_${dateLabel}.zip`;
+        const content = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 6 } });
+        const anchor = document.createElement('a');
+        anchor.href = URL.createObjectURL(content);
+        anchor.download = zipName;
+        anchor.style.display = 'none';
+        document.body.appendChild(anchor);
+        anchor.click();
+        document.body.removeChild(anchor);
+        URL.revokeObjectURL(anchor.href);
+      } catch (error) {
+        console.error('Screenshot ZIP creation failed:', error);
+      }
+    }
+
     setDlProgress(null);
     setDlOpen(false);
   };
@@ -340,13 +365,20 @@ export default function Screenshots({ onBack, dateRange, data, onRefresh }) {
                       <div className="dl-progress-track">
                         <div className="dl-progress-bar" style={{ width: `${Math.round((dlProgress.done / dlProgress.total) * 100)}%` }} />
                       </div>
-                      <span className="dl-progress-label">{dlProgress.done} / {dlProgress.total} downloaded</span>
+                      <div className="dl-progress-footer">
+                        <span className="dl-progress-label">{dlProgress.done} / {dlProgress.total} downloaded</span>
+                        <button className="dl-cancel-btn" onClick={() => { dlAbortRef.current = true; }}>
+                          Cancel
+                        </button>
+                      </div>
                     </div>
                   ) : (
-                    <button className="dl-go-btn" onClick={handleDownload} disabled={!dlFilteredCount}>
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                      Download {dlFilteredCount > 0 ? `${dlFilteredCount} File${dlFilteredCount !== 1 ? 's' : ''}` : ''}
-                    </button>
+                    <div className="dl-actions-row">
+                      <button className="dl-go-btn" onClick={handleDownload} disabled={!dlFilteredCount}>
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        Download {dlFilteredCount > 0 ? `${dlFilteredCount} File${dlFilteredCount !== 1 ? 's' : ''}` : ''}
+                      </button>
+                    </div>
                   )}
                 </div>
               )}
