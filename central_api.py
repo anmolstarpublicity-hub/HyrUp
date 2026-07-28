@@ -538,4 +538,5 @@ def serve_react(path):
     return jsonify({'status': 'API running', 'version': '1.0.0'})
 
 if __name__ == '__main__':
-    socketio.run(app, host='0.0.0.0', port=5001, allow_unsafe_werkzeug=True, use_reloader=False, log_output=False)
+    port = int(os.environ.get('PORT', 5001))
+    socketio.run(app, host='0.0.0.0', port=port, allow_unsafe_werkzeug=True, use_reloader=False, log_output=False)
