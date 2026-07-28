@@ -29,7 +29,7 @@ setx HYRUP_EMPLOYEE_NAME "%EMP_NAME%" /M >nul 2>&1
 echo       Done.
 
 echo [3/4] Setting Backend API URL...
-set "API_URL=https://hyrup-production.up.railway.app"
+set "API_URL=https://web-copy-production-a84f.up.railway.app"
 setx HYRUP_API_URL "%API_URL%" /M >nul 2>&1
 echo       Done.
 
