@@ -88,14 +88,14 @@ def _get_central_url():
     if HYRUP_API_URL:
         return HYRUP_API_URL
     if not _supabase:
-        return os.environ.get('HYRUP_API_URL', 'https://hyrup-production.up.railway.app').rstrip('/')
+        return os.environ.get('HYRUP_API_URL', 'https://web-copy-production-a84f.up.railway.app').rstrip('/')
     try:
         res = _supabase.table('config').select('value').eq('key', 'ngrok_url').execute()
         url = res.data[0]['value'] if res.data else ''
-        return url.rstrip('/') if url else os.environ.get('HYRUP_API_URL', 'https://hyrup-production.up.railway.app').rstrip('/')
+        return url.rstrip('/') if url else os.environ.get('HYRUP_API_URL', 'https://web-copy-production-a84f.up.railway.app').rstrip('/')
     except Exception as e:
         _err(f'_get_central_url error: {e}')
-        return os.environ.get('HYRUP_API_URL', 'https://hyrup-production.up.railway.app').rstrip('/')
+        return os.environ.get('HYRUP_API_URL', 'https://web-copy-production-a84f.up.railway.app').rstrip('/')
 
 CENTRAL_API_URL = _get_central_url()
 _err(f"Central API URL: {CENTRAL_API_URL}")
