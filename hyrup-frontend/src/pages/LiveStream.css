@@ -232,12 +232,12 @@ html.dark .lv-stat-val { color: #a78bfa; }
 
 /* ── Close button — circle with X ── */
 .lv-fs-close-btn {
-  position: absolute;
-  top: 18px;
-  right: 18px;
-  z-index: 10000;
-  width: 44px;
-  height: 44px;
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 999999;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   background: #ffffff;
   border: 4px solid #ef4444;
@@ -249,12 +249,16 @@ html.dark .lv-stat-val { color: #a78bfa; }
   padding: 0;
   transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
   box-shadow: 0 2px 12px rgba(239,68,68,0.35);
+  font-family: inherit;
 }
 .lv-fs-close-btn:hover {
   background: #ef4444;
   color: #ffffff;
   transform: scale(1.1);
   box-shadow: 0 4px 18px rgba(239,68,68,0.55);
+}
+.lv-fs-close-btn:active {
+  transform: scale(0.95);
 }
 
 .lv-fullscreen-wrapper {
@@ -263,6 +267,8 @@ html.dark .lv-stat-val { color: #a78bfa; }
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+  background: #000;
 }
 .lv-fullscreen-img {
   max-width: 100%;
@@ -270,21 +276,18 @@ html.dark .lv-stat-val { color: #a78bfa; }
   width: auto;
   height: auto;
   object-fit: contain;
-  box-shadow: 0 6px 30px rgba(0,0,0,0.6);
-  border-radius: 6px;
-  background: #000;
 }
 
-/* When element is fullscreen, ensure it fills viewport */
-::backdrop, :fullscreen, :-webkit-full-screen, :-ms-fullscreen {
-  background: transparent;
+/* When element is fullscreen */
+:fullscreen .lv-fullscreen-wrapper, :-webkit-full-screen .lv-fullscreen-wrapper {
+  width: 100vw !important;
+  height: 100vh !important;
 }
 :fullscreen .lv-fullscreen-img, :-webkit-full-screen .lv-fullscreen-img {
   width: 100vw;
   height: 100vh;
   max-width: none;
   max-height: none;
-  object-fit: contain;
 }
 
 /* ── Mobile Responsive ── */

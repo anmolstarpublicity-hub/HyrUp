@@ -111,18 +111,24 @@ function LiveCard({ emp, isOnline }) {
     try { console.debug('LiveCard modalOpen', empKey, modalOpen); } catch(e) {}
   }, [modalOpen, empKey]);
 
+  const exitFullscreen = useCallback(() => {
+    const exit = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
+    if (document.fullscreenElement && exit) {
+      exit.call(document);
+    }
+  }, []);
+
   const toggleFullscreen = useCallback(() => {
-    // Toggle fullscreen on the canvas (live small preview) or modal image if available
-    const elem = modalImgRef.current || canvasRef.current;
+    // Request fullscreen on the container wrapper so close button is included
+    const elem = modalContainerRef.current;
     if (!elem) return;
     const request = elem.requestFullscreen || elem.webkitRequestFullscreen || elem.mozRequestFullScreen || elem.msRequestFullscreen;
-    const exit = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
     if (!document.fullscreenElement) {
       request && request.call(elem);
     } else {
-      exit && exit.call(document);
+      exitFullscreen();
     }
-  }, []);
+  }, [exitFullscreen]);
 
   const stopStream = useCallback(() => {
     if (!streamingRef.current) return;
@@ -215,27 +221,27 @@ function LiveCard({ emp, isOnline }) {
             </svg>
           </button>
           {modalOpen && createPortal(
-            <div className="lv-fullscreen-overlay" onClick={() => setModalOpen(false)}>
-              <div className="lv-fullscreen-content" onClick={e => e.stopPropagation()}>
-                <button className="lv-fullscreen-close" onClick={() => setModalOpen(false)}>Close</button>
+            <div className="lv-fullscreen-overlay">
+              <div className="lv-fullscreen-content">
                 {modalFrame ? (
                   <div ref={modalContainerRef} className="lv-fullscreen-wrapper">
+                    <button 
+                      className="lv-fs-close-btn" 
+                      onClick={() => {
+                        exitFullscreen();
+                        setModalOpen(false);
+                      }} 
+                      title="Close"
+                    >
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                      </svg>
+                    </button>
                     <img
                       ref={modalImgRef}
                       src={`data:image/jpeg;base64,${modalFrame}`}
                       alt={`${emp} live fullscreen`}
                       className="lv-fullscreen-img"
-                      onClick={() => {
-                        const container = modalContainerRef.current || modalImgRef.current;
-                        if (!container) return;
-                        if (!document.fullscreenElement) {
-                          const req = container.requestFullscreen || container.webkitRequestFullscreen || container.mozRequestFullScreen || container.msRequestFullscreen;
-                          req && req.call(container);
-                        } else {
-                          const exit = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
-                          exit && exit.call(document);
-                        }
-                      }}
                     />
                   </div>
                 ) : (
