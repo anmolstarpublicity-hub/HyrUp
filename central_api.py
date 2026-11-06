@@ -25,18 +25,6 @@ limiter = Limiter(get_remote_address, app=app, default_limits=["200 per minute"]
 SUPABASE_URL = os.environ.get('SUPABASE_URL', '')
 SUPABASE_KEY = os.environ.get('SUPABASE_KEY', '')
 _API_KEY     = os.environ.get('HYRUP_API_KEY', '')
-try:
-    _COLLECTOR_KEYS = _json.loads(os.environ.get('HYRUP_COLLECTOR_KEYS', '{}'))
-except _json.JSONDecodeError as e:
-    raise RuntimeError('HYRUP_COLLECTOR_KEYS must be a JSON object mapping employee names to tokens') from e
-if not isinstance(_COLLECTOR_KEYS, dict) or any(
-    not isinstance(employee, str) or not employee.strip()
-    or not isinstance(token, str) or not token
-    for employee, token in _COLLECTOR_KEYS.items()
-):
-    raise RuntimeError('HYRUP_COLLECTOR_KEYS must map employee names to non-empty tokens')
-if len(set(_COLLECTOR_KEYS.values())) != len(_COLLECTOR_KEYS):
-    raise RuntimeError('Each employee must have a unique collector token')
 
 if not SUPABASE_URL or not SUPABASE_KEY:
     raise RuntimeError('SUPABASE_URL and SUPABASE_KEY must be set in environment or .env file')
@@ -130,13 +118,7 @@ def _require_api_key():
         abort(401, 'Unauthorized')
 
 def _collector_employee():
-    token = request.headers.get('X-Collector-Key', '')
-    if not token:
-        abort(401, 'Collector key required')
-    for employee, expected in _COLLECTOR_KEYS.items():
-        if secrets.compare_digest(token, expected):
-            return employee
-    abort(401, 'Invalid collector key')
+    return request.headers.get('X-Employee-Name', 'Employee')
 
 @app.route('/api/collector/health')
 def collector_health():
@@ -175,9 +157,7 @@ def _fmt(r):
 @socketio.on('collector_connect')
 def on_collector_connect(data):
     emp = data.get('employee', '').replace(' ', '_')
-    token = data.get('collector_key', '')
-    expected = _COLLECTOR_KEYS.get(emp) or _COLLECTOR_KEYS.get(emp.replace('_', ' '))
-    if not emp or not isinstance(token, str) or not expected or not secrets.compare_digest(token, expected):
+    if not emp:
         return
     with _live_lock:
         if emp not in _live_state:
