@@ -5,6 +5,8 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import '../shared.css';
 import './EmployeeInsights.css';
 
+const API_URL = import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_URL || window.location.origin;
+
 const API_KEY = import.meta.env.VITE_API_KEY || '';
 
 function EmptyState({ title = 'No data available', message = 'Update filters or select a different employee to view logs.' }) {
@@ -342,7 +344,7 @@ export default function EmployeeInsights({ data, dateRange, selectedEmp, onBack 
     setDeleting(true);
     try {
       const names = [...selRows];
-      const res = await fetch('/api/activity/delete/byname', {
+      const res = await fetch(`${API_URL}/api/activity/delete/byname`, {
         method: 'POST',
         headers: { 'X-API-Key': API_KEY, 'Content-Type': 'application/json' },
         body: JSON.stringify({ employee: selected, names, date_start: dateRange.start, date_end: dateRange.end })

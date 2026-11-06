@@ -1,5 +1,5 @@
-import { useMemo, useState, useCallback } from 'react';
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid, Sector } from 'recharts';
+import { useMemo, useState, useEffect, useCallback } from 'react';
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend, BarChart, Bar, LabelList, XAxis, YAxis, CartesianGrid, Sector } from 'recharts';
 import '../shared.css';
 import './AppAnalytics.css';
 
@@ -65,6 +65,14 @@ export default function AppAnalytics({ data, dateRange, onBack }) {
   const [hiddenApps, setHiddenApps] = useState(new Set());
   const [showAll, setShowAll] = useState(false);
   const [activeIndex, setActiveIndex] = useState(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const updateScreen = () => setIsMobile(window.innerWidth <= 768);
+    updateScreen();
+    window.addEventListener('resize', updateScreen);
+    return () => window.removeEventListener('resize', updateScreen);
+  }, []);
 
   const onPieEnter = useCallback((_, index) => setActiveIndex(index), []);
   const onPieLeave = useCallback(() => setActiveIndex(null), []);
@@ -125,6 +133,13 @@ export default function AppAnalytics({ data, dateRange, onBack }) {
     value: Math.round(a.value),
     label: formatTime(a.value),
   }));
+
+  const barLayout = 'horizontal';
+  const barMargin = isMobile ? { top: 16, right: 18, left: 24, bottom: 30 } : { top: 24, right: 38, left: 24, bottom: 24 };
+  const barHeight = Math.max(360, barData.length * 54);
+  const barRadius = 18;
+  const barCategoryGap = isMobile ? '28%' : '34%';
+  const barGap = isMobile ? 12 : 18;
 
   const displayedApps = showAll ? allAppData : allAppData.slice(0, 15);
 
@@ -250,14 +265,23 @@ export default function AppAnalytics({ data, dateRange, onBack }) {
               </div>
               {barData.length === 0
                 ? <EmptyState />
-                : <ResponsiveContainer width="100%" height={360}>
-                    <BarChart data={barData} layout="vertical" margin={{ top: 5, right: 70, left: 10, bottom: 5 }} barSize={16}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,128,128,0.12)" horizontal={false} />
-                      <XAxis type="number" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `${(v / 60).toFixed(1)}h`} />
-                      <YAxis type="category" dataKey="name" tick={{ fill: 'var(--text)', fontSize: 11 }} axisLine={false} tickLine={false} width={140} />
-                      <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(99,102,241,0.05)' }} />
-                      <Bar dataKey="value" radius={[0, 6, 6, 0]}>
-                        {barData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                : <ResponsiveContainer width="100%" height={barHeight}>
+                    <BarChart data={barData} layout={barLayout} margin={barMargin} barSize={isMobile ? 12 : 16}>
+                      <defs>
+                        {barData.map((_, i) => (
+                          <linearGradient key={`barGrad-${i}`} id={`barGrad-${i}`} x1="0" y1="0" x2="1" y2="0">
+                            <stop offset="0%" stopColor={COLORS[i % COLORS.length]} stopOpacity="0.92" />
+                            <stop offset="100%" stopColor="#0f172a" stopOpacity="0.16" />
+                          </linearGradient>
+                        ))}
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(15,23,42,0.08)" vertical={false} />
+                      <XAxis type="number" tick={{ fill: 'rgba(51,65,85,0.8)', fontSize: isMobile ? 11 : 12, fontWeight: 600 }} axisLine={false} tickLine={false} tickFormatter={v => `${(v / 60).toFixed(1)}h`} />
+                      <YAxis type="category" dataKey="name" tick={{ fill: 'rgba(51,65,85,0.92)', fontSize: isMobile ? 11 : 12, fontWeight: 600 }} axisLine={false} tickLine={false} width={isMobile ? 120 : 200} />
+                      <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(16,185,129,0.08)' }} />
+                      <Bar dataKey="value" barSize={isMobile ? 20 : 26} radius={barRadius} background={{ fill: 'rgba(16,185,129,0.08)' }} barCategoryGap={barCategoryGap} barGap={barGap} animationDuration={900} animationEasing="ease-out">
+                        {barData.map((_, i) => <Cell key={i} fill={`url(#barGrad-${i})`} />)}
+                        <LabelList dataKey="label" position={isMobile ? "top" : "right"} fill="#0f172a" fontSize={12} />
                       </Bar>
                     </BarChart>
                   </ResponsiveContainer>

@@ -1,0 +1,10 @@
+# Best-effort legacy build only; requires 64-bit Python 3.8 on Windows 7 SP1.
+# These older versions are unsupported; do not use this build for a
+# security-sensitive or production deployment.
+PyInstaller==4.10
+pygetwindow==0.0.9
+pynput==1.7.6
+Pillow==9.5.0
+supabase==1.2.0
+python-socketio[client]==5.10.0
+python-dotenv==1.0.0

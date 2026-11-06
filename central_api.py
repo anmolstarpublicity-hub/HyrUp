@@ -11,12 +11,13 @@ from supabase import create_client
 # Load .env for local development — Railway/production sets env vars directly
 try:
     from dotenv import load_dotenv
-    load_dotenv()
+    load_dotenv(override=True)
 except ImportError:
     pass
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('HYRUP_SECRET', 'hyrup-secret-key-2024')
+app.config['MAX_CONTENT_LENGTH'] = 9 * 1024 * 1024
 CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading', logger=False, engineio_logger=False)
 limiter = Limiter(get_remote_address, app=app, default_limits=["200 per minute"], storage_uri="memory://")
@@ -24,6 +25,18 @@ limiter = Limiter(get_remote_address, app=app, default_limits=["200 per minute"]
 SUPABASE_URL = os.environ.get('SUPABASE_URL', '')
 SUPABASE_KEY = os.environ.get('SUPABASE_KEY', '')
 _API_KEY     = os.environ.get('HYRUP_API_KEY', '')
+try:
+    _COLLECTOR_KEYS = _json.loads(os.environ.get('HYRUP_COLLECTOR_KEYS', '{}'))
+except _json.JSONDecodeError as e:
+    raise RuntimeError('HYRUP_COLLECTOR_KEYS must be a JSON object mapping employee names to tokens') from e
+if not isinstance(_COLLECTOR_KEYS, dict) or any(
+    not isinstance(employee, str) or not employee.strip()
+    or not isinstance(token, str) or not token
+    for employee, token in _COLLECTOR_KEYS.items()
+):
+    raise RuntimeError('HYRUP_COLLECTOR_KEYS must map employee names to non-empty tokens')
+if len(set(_COLLECTOR_KEYS.values())) != len(_COLLECTOR_KEYS):
+    raise RuntimeError('Each employee must have a unique collector token')
 
 if not SUPABASE_URL or not SUPABASE_KEY:
     raise RuntimeError('SUPABASE_URL and SUPABASE_KEY must be set in environment or .env file')
@@ -67,12 +80,36 @@ def get_ngrok_url():
         print(f'[HyrUp] get_ngrok_url error: {e}')
         return jsonify({'url': ''})
 
+def _employee_slug(employee):
+    return employee.strip().replace(' ', '_')
+
+def _remove_screenshot_objects(rows):
+    paths = set()
+    for row in rows:
+        employee = _employee_slug(str(row.get('employee_name') or ''))
+        filename = str(row.get('filename') or '')
+        if (
+            employee and filename and filename == os.path.basename(filename)
+            and '..' not in filename and '/' not in filename and '\\' not in filename
+            and '/' not in employee and '\\' not in employee
+        ):
+            paths.add(f'{employee}/{filename}')
+    storage = supabase.storage.from_('screenshots')
+    paths = list(paths)
+    for index in range(0, len(paths), 100):
+        storage.remove(paths[index:index + 100])
+    return len(paths)
+
 # ── Auto-delete old data (older than 30 days) ─────────────────
 def _auto_delete_old_data():
     while True:
         try:
             cutoff = (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d')
             supabase.table('activity_logs').delete().lt('date', cutoff).execute()
+            old_screenshots = supabase.table('screenshots').select(
+                'employee_name,filename'
+            ).lt('created_at', cutoff).execute().data
+            _remove_screenshot_objects(old_screenshots)
             supabase.table('screenshots').delete().lt('created_at', cutoff).execute()
         except Exception as e:
             print(f'[HyrUp] Auto-delete error: {e}')
@@ -92,6 +129,35 @@ def _require_api_key():
     if not secrets.compare_digest(key, _API_KEY):
         abort(401, 'Unauthorized')
 
+def _collector_employee():
+    token = request.headers.get('X-Collector-Key', '')
+    if not token:
+        abort(401, 'Collector key required')
+    for employee, expected in _COLLECTOR_KEYS.items():
+        if secrets.compare_digest(token, expected):
+            return employee
+    abort(401, 'Invalid collector key')
+
+@app.route('/api/collector/health')
+def collector_health():
+    _collector_employee()
+    return jsonify({'status': 'ok'})
+
+@app.route('/api/collector/commands')
+def collector_commands():
+    employee = _collector_employee()
+    flag = f'triggers/{_employee_slug(employee)}.trigger'
+    try:
+        storage = supabase.storage.from_('screenshots')
+        files = storage.list('triggers')
+        if not any(item.get('name') == os.path.basename(flag) for item in (files or [])):
+            return jsonify({'capture': False})
+        storage.remove([flag])
+        return jsonify({'capture': True})
+    except Exception as e:
+        print(f'[HyrUp] collector command poll error: {e}')
+        abort(502, 'Could not check collector commands')
+
 def _fmt(r):
     ts = str(r.get('timestamp', ''))
     # Strip timezone suffix so JS treats it as local time, not UTC
@@ -109,7 +175,9 @@ def _fmt(r):
 @socketio.on('collector_connect')
 def on_collector_connect(data):
     emp = data.get('employee', '').replace(' ', '_')
-    if not emp:
+    token = data.get('collector_key', '')
+    expected = _COLLECTOR_KEYS.get(emp) or _COLLECTOR_KEYS.get(emp.replace('_', ' '))
+    if not emp or not isinstance(token, str) or not expected or not secrets.compare_digest(token, expected):
         return
     with _live_lock:
         if emp not in _live_state:
@@ -122,9 +190,10 @@ def on_collector_connect(data):
 
 @socketio.on('push_frame')
 def on_push_frame(data):
-    emp   = data.get('employee', '').replace(' ', '_')
+    emp   = _sid_to_emp.get(request.sid)
+    requested_emp = data.get('employee', '').replace(' ', '_')
     frame = data.get('frame', '')
-    if not emp or not frame:
+    if not emp or requested_emp != emp or not frame:
         return
     with _live_lock:
         if emp not in _live_state:
@@ -186,6 +255,10 @@ def manual_cleanup():
         days   = int(request.args.get('days', 30))
         cutoff = (datetime.now() - timedelta(days=days)).strftime('%Y-%m-%d')
         supabase.table('activity_logs').delete().lt('date', cutoff).execute()
+        old_screenshots = supabase.table('screenshots').select(
+            'employee_name,filename'
+        ).lt('created_at', cutoff).execute().data
+        _remove_screenshot_objects(old_screenshots)
         supabase.table('screenshots').delete().lt('created_at', cutoff).execute()
         return jsonify({'status': 'ok', 'cutoff': cutoff})
     except Exception as e:
@@ -292,6 +365,10 @@ def delete_by_employee(employee):
         emp_space = employee.replace('_', ' ')
         db = _get_supabase()
         db.table('activity_logs').delete().in_('employee_name', [employee, emp_space]).execute()
+        screenshot_rows = db.table('screenshots').select(
+            'employee_name,filename'
+        ).in_('employee_name', [employee, emp_space]).execute().data
+        _remove_screenshot_objects(screenshot_rows)
         db.table('screenshots').delete().in_('employee_name', [employee, emp_space]).execute()
         return jsonify({'status': 'ok'})
     except Exception as e:
@@ -305,7 +382,15 @@ def delete_by_date(date):
     try:
         db = _get_supabase()
         db.table('activity_logs').delete().eq('date', date).execute()
-        db.table('screenshots').delete().like('created_at', f'{date}%').execute()
+        screenshot_rows = db.table('screenshots').select(
+            'employee_name,filename'
+        ).gte('created_at', f'{date}T00:00:00').lte(
+            'created_at', f'{date}T23:59:59.999999'
+        ).execute().data
+        _remove_screenshot_objects(screenshot_rows)
+        db.table('screenshots').delete().gte(
+            'created_at', f'{date}T00:00:00'
+        ).lte('created_at', f'{date}T23:59:59.999999').execute()
         return jsonify({'status': 'ok'})
     except Exception as e:
         abort(500, str(e))
@@ -321,9 +406,16 @@ def delete_by_employee_and_date(employee, date):
         db.table('activity_logs').delete()\
             .in_('employee_name', [employee, emp_space])\
             .eq('date', date).execute()
+        screenshot_rows = db.table('screenshots').select(
+            'employee_name,filename'
+        ).in_('employee_name', [employee, emp_space]).gte(
+            'created_at', f'{date}T00:00:00'
+        ).lte('created_at', f'{date}T23:59:59.999999').execute().data
+        _remove_screenshot_objects(screenshot_rows)
         db.table('screenshots').delete()\
             .in_('employee_name', [employee, emp_space])\
-            .like('created_at', f'{date}%').execute()
+            .gte('created_at', f'{date}T00:00:00')\
+            .lte('created_at', f'{date}T23:59:59.999999').execute()
         return jsonify({'status': 'ok'})
     except Exception as e:
         abort(500, str(e))
